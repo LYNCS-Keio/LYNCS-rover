@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
+#include "local_libs/Matrix.h"
 
 #define bv  0.05745024
 #define cv 0.009521774
@@ -111,7 +112,6 @@ double vn2 = 0;
 double rvn;
 double rvn1 = 0;
 double rvn2 = 0;
-double TIMEr;
 double we = 1600;
 double wh = 2;
 
@@ -209,20 +209,16 @@ VectorInt16 aaWorld;
 VectorFloat gravity;  // [x, y, z]      gravity vector
 VectorInt16 gyro;// [x, y, z]      gravity vector
 float ypr[3];
-double A [3][4];
+lyncs::Matrix<double,3,3> rotation_matrix = {{{0,0,0},{0,0,0},{0,0,0}}};
 double v;
 double vv;
 double y0;
 double y1;
 double y2;
-double timetime1 = 0;
-double timetime2 = 0;
-double TIME;
 volatile bool mpuInterrupt = false;   // indicates whether MPU interrupt pin has gone high
 void dmpDataReady() {
   mpuInterrupt = true;
 }
-void cal1(double f[3][3], double g[3][3]);
 void cleenarray3(double array[], double newdata);
 void pidx(double array[], double a_m, double PB, double DT, double Td, double T);
 void pidy(double array[], double a_m, double PB, double DT, double Td, double T);
@@ -230,6 +226,7 @@ void pidz(double array[], double a_m, double PB, double DT, double Td, double T)
 void pidy_a(double , double , double , double , double , double );
 void change(double, double, double, double);
 void pidh(double array[], double a_m, double PB, double DT, double Td, double T);
+double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
 void flypower(double outr, double outl);
 void getrp(double, double);
 void cmpid(double array[], double a_m, double PB, double DT, double Td, double T);
@@ -382,7 +379,7 @@ void loop()
     y1 = (-1) * ypr[1];
     y2 = ypr[2];
 
-    getkgl((double)y0, (double)y1, (double)y2);
+	GetRotationMatrix(rotation_matrix, (double)y0, (double)y1, (double)y2);
     aax = (double)aa.x / 7600;
     aay = (double)aa.y / 8000;
     aaz = (double)aa.z / 10200;
@@ -406,16 +403,14 @@ void loop()
     aaxT *= 0.000000001;
     aayT *= 0.000000001;
     aazT *= 0.000000001;
-    vx = A[0][0] * aaxT + A[0][1] * aayT + A[0][2] * aazT;
-    vy = A[1][0] * aaxT + A[1][1] * aayT + A[1][2] * aazT;
-    vz = A[2][0] * aaxT + A[2][1] * aayT + A[2][2] * aazT;
-    timetime2 = micros();
-    TIME = timetime2 - timetime1;
-    timetime1 = timetime2;
-    rvn = rvn1 + (vz - 1) * 9.8 * TIME / 1000000;
-    TIMEr = TIME / 1000000;
+    vx = rotation_matrix.GetElement(0,0) * aaxT +  rotation_matrix.GetElement(0,1)* aayT + rotation_matrix.GetElement(0,2) * aazT;
+    vy = rotation_matrix.GetElement(1,0) * aaxT + rotation_matrix.GetElement(1,1) * aayT + rotation_matrix.GetElement(1,2) * aazT;
+    vz = rotation_matrix.GetElement(2,0) * aaxT + rotation_matrix.GetElement(2,1) * aayT + rotation_matrix.GetElement(2,2) * aazT;
+    
+	double delta_time = TimeUpdate()/1000000;
+    rvn = rvn1 + (vz - 1) * 9.8 * delta_time;
     //vn = rvn;
-    vn = (rvn * we - rvn2 * we - (TIMEr / 2 * wh - 1) * (we - 2 / TIMEr) * vn2 - ((TIMEr / 2 * wh - 1) * (2 / TIMEr + we) + (we - 2 / TIMEr) * (1 + TIMEr / 2 * wh)) * vn1 ) / (1 + TIMEr / 2 * wh) / (2 / TIMEr + we);
+    vn = (rvn * we - rvn2 * we - (delta_time / 2 * wh - 1) * (we - 2 / delta_time) * vn2 - ((delta_time / 2 * wh - 1) * (2 / delta_time + we) + (we - 2 / delta_time) * (1 + delta_time / 2 * wh)) * vn1 ) / (1 + delta_time / 2 * wh) / (2 / delta_time + we);
     vn2 = vn1;
     vn1 = vn;
     rvn2 = rvn1;
@@ -527,20 +522,6 @@ void cleenarray3(double array[], double newdata)
   array[2] = newdata;
 }
 
-void cal1(double f[3][3], double g[3][3])
-{
-  int i;
-  int j;
-  int t;
-  for ( i = 0; i < 3; ++i) {
-    for ( j = 0; j < 3; ++j) {
-      A[i][j] = 0;
-      for ( t = 0; t < 3; ++t) {
-        A[i][j] += f[i][t] * g[t][j];
-      }
-    }
-  }
-}
 void pidx(double array[], double a_m, double PB, double DT, double Td, double T)
 {
   vkx = vkx + PB * (array[1] - array[2]) + T * DT * (a_m - array[2]) - Td / T * (array[2] - 2 * array[1] + array[0]);
@@ -635,20 +616,20 @@ void getrp(double a, double b) {
   kxa_m = ro;
   kya_m = pic;
 }
-void getkgl(double f, double e, double d)
+double TimeUpdate()
 {
-  double a[3][3] = {{1, 0, 0}, {0, cos(d), -1 * sin(d)}, {0, sin(d), cos(d)}};
-  double b[3][3] = {{cos(e), 0, sin(e)}, {0, 1, 0}, { -sin(e), 0, cos(e)}};
-  double c[3][3] = {{cos(f), -1 * sin(f), 0}, {sin(f), cos(f), 0}, {0, 0, 1}};
-  double i;
-  double r;
-  cal1(c, b);
-  for (int s = 0; s < 3; s++)
-  {
-    for (int f = 0; f < 3; f++)
-    {
-      buffer1[s][f] = A[s][f];
-    }
-  }
-  cal1(buffer1, a);
+	static double previous_time = micros(); //前回この関数が呼ばれた時間
+	double temp_time = micros();
+	double return_time = temp_time - previous_time;
+	previous_time = temp_time;
+	return return_time;
+}
+
+void GetRotationMatrix(lyncs::Matrix<double, 3, 3> &rotation_matrix, const double psi, const double phi, const double theta)
+{
+	double buffer1[3][3];
+	lyncs::Matrix<double, 3, 3> R_roll_theta = {{{1, 0, 0}, {0, cos(theta), -1 * sin(theta)}, {0, sin(theta), cos(theta)}}};
+	lyncs::Matrix<double, 3, 3> R_pitch_phi = {{{cos(phi), 0, sin(phi)}, {0, 1, 0}, {-sin(phi), 0, cos(phi)}}};
+	lyncs::Matrix<double, 3, 3> R_yaw_psi = {{{cos(psi), -1 * sin(psi), 0}, {sin(psi), cos(psi), 0}, {0, 0, 1}}};
+	rotation_matrix = (R_yaw_psi * R_pitch_phi) * R_roll_theta;
 }
