@@ -86,10 +86,7 @@ MPU6050 mpu;
 double gzzz;
 double gzz0;
 double gztank = 0;
-double kx_m = 0;
 double countx;
-double ky_m = 0;
-double kz_m = 0;
 double vkx;
 double power;
 double power_a[3];
@@ -172,8 +169,6 @@ VectorFloat gravity; // [x, y, z]      gravity vector
 VectorInt16 gyro;	// [x, y, z]      gravity vector
 float ypr[3];
 lyncs::Matrix<double, 3, 3> rotation_matrix = {{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
-double v;
-double vv;
 double y0;
 double y1;
 double y2;
@@ -183,10 +178,8 @@ void dmpDataReady()
 	mpuInterrupt = true;
 }
 void cleenarray3(double array[], double newdata);
-void pidx(double array[], double a_m, double PB, double DT, double Td, double T);
-void pidy(double array[], double a_m, double PB, double DT, double Td, double T);
-void pidz(double array[], double a_m, double PB, double DT, double Td, double T);
-void pidy_a(double, double, double, double, double, double);
+double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T);
+double pid_a(double array[], const double a_m, const double proportion_gain);
 void change(double, double, double, double);
 void pidh(double array[], double a_m, double PB, double DT, double Td, double T);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
@@ -353,7 +346,7 @@ void loop()
 		intypr[1] = (long int)(ypr[1] * 1000);
 		intypr[2] = (long int)(ypr[2] * 1000);
 		//aaxT = qx1*ypr[0] + qx2*ypr[1] + qx3*ypr[2] + qx4*ypr[0]*ypr[0] + qx5*ypr[1]*ypr[1] + qx6*ypr[2]*ypr[2] +qx7*ypr[0]*ypr[1] + qx8*ypr[1]*ypr[2] + qx9*ypr[0]*ypr[2] + qx10*aax;
-		//aayT = qy1*ypr[0] + qy2*ypr[1] + qy3*ypr[2] + qy4*ypr[0]*ypr[0] + qy5*ypr[1]*ypr[1] + qy6*ypr[2]*ypr[2] +qy7*ypr[0]*ypr[1] + qy8*ypr[1]*ypr[2] + qy9*ypr[0]*ypr[2] + qy10*aay;
+		//aayT = qy1*ypr[0] + qy2*ypr[1] + qy3*ypr[2] + qypry4*ypr[0]*ypr[0] + qy5*ypr[1]*ypr[1] + qy6*ypr[2]*ypr[2] +qy7*ypr[0]*ypr[1] + qy8*ypr[1]*ypr[2] + qy9*ypr[0]*ypr[2] + qy10*aay;
 		//aazT = qz1*ypr[0] + qz2*ypr[1] + qz3*ypr[2] + qz4*ypr[0]*ypr[0] + qz5*ypr[1]*ypr[1] + qz6*ypr[2]*ypr[2] +qz7*ypr[0]*ypr[1] + qz8*ypr[1]*ypr[2] + qz9*ypr[0]*ypr[2] + qz10*aaz;
 		//aaxT = (-0.001)*ypr[0] + 0.93*ypr[1] + 0.003*ypr[2] +  0.003*ypr[1]*ypr[1] + (-0.004)*ypr[2]*ypr[2] +0.01*ypr[0]*ypr[1] + 0.00361*ypr[1]*ypr[2] + 0.003*ypr[0]*ypr[2] + 0.01*aax;
 		//aayT = 0.009*ypr[0] + (-0.02)*ypr[1] + 0.94*ypr[2] + (-0.04)*ypr[1]*ypr[1] + (-0.03)*ypr[2]*ypr[2] +0.03*ypr[0]*ypr[1] + 0.04*ypr[1]*ypr[2] + (-0.03)*ypr[0]*ypr[2] + 0.007*aay;
@@ -438,31 +431,13 @@ void loop()
 		pty = pty * 0.05 + ptyold * 0.95;
 		ptyold = pty;
 	}
-	v = 0.1;
 
 	cleenarray3(kx_a, gyv[0]);
 	cleenarray3(ky_a, gyv[1]);
 	cleenarray3(kz_a, gyv[2]);
 	cleenarray3(kv_a, vn - v00);
 
-	/*if (countx == 9) {
-    cleenarray3(kxa_a, gy[2]);
-    cleenarray3(kya_a, -gy[1]);
-    cleenarray3(kza_a, -gy[0]);
-
-
-    pidx_a(kxa_a, ptx, 180, 0, 0, 0.1);
-    pidy_a(kya_a, pty, 180, 0, 0, 0.1);
-    pidz_a(kza_a, ptz, 180, 0, 0, 0.1);
-    countx = 0;
-    }*/
-
-	// pidx(kx_a, kx_m, 0.732, 5.2286, 0.02562, 0.01);
-	//pidy(ky_a, ky_m, 0.732, 5.63, 0.024, 0.01);
-	pidz(kz_a, 0, ptx, 0, 0, 0.01);
-	// pidh(kv_a, center, 80, 20, 20, 0.01);
-
-	//flypower(v, vkz);
+	vkz += pid(kz_a, 0, ptx, 0, 0, 0.01);
 	flypower(0.5, 0);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
@@ -475,43 +450,23 @@ void cleenarray3(double array[], double newdata)
 	array[1] = array[2];
 	array[2] = newdata;
 }
+double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T)
+{
+	double diff = array[1] - array[2];
+	double integral = (a_m - array[2]) * delta_T;
+	double differential = (array[2] - 2 * array[1] + array[0]) / delta_T;
 
-void pidx(double array[], double a_m, double PB, double DT, double Td, double T)
-{
-	vkx = vkx + PB * (array[1] - array[2]) + T * DT * (a_m - array[2]) - Td / T * (array[2] - 2 * array[1] + array[0]);
-}
-void pidy(double array[], double a_m, double PB, double DT, double Td, double T)
-{
-	vky = vky + PB * (array[1] - array[2]) + T * DT * (a_m - array[2]) - Td / T * (array[2] - 2 * array[1] + array[0]);
-}
-void pidz(double array[], double a_m, double PB, double DT, double Td, double T)
-{
-	vkz = vkz + PB * (array[1] - array[2]) + T * DT * (a_m - array[2]) - Td / T * (array[2] - 2 * array[1] + array[0]);
-}
-void pidx_a(double array[], double a_m, double PB, double DT, double Td, double T)
-{
-	kx_m = PB * (a_m - array[2]);
-}
-void pidy_a(double array[], double a_m, double PB, double DT, double Td, double T)
-{
-	ky_m = PB * (a_m - array[2]);
-}
-void pidz_a(double array[], double a_m, double PB, double DT, double Td, double T)
-{
-	kz_m = PB * (a_m - array[2]);
+	double p = proportion_gain * diff;			 //P制御
+	double i = integral_gain * integral;		 //PI制御
+	double d = differential_gain * differential; //PID制御
+	return p + i - d;
 }
 
-void pidh(double array[], double a_m, double PB, double DT, double Td, double T)
+double pid_a(double array[], const double a_m, const double proportion_gain)
 {
-	vv = vv + T * DT * (a_m - array[2]) - Td / T * (array[2] - 2 * array[1] + array[0]);
-	v = PB * (a_m - array[2]) + vv;
+	return proportion_gain * (a_m - array[2]);
 }
-/*void pidh(double array[], double a_m, double PB, double DT, double Td, double T)
-  {
-  v =  v +PB*(array[1]-array[2]) + T*DT*(a_m-array[2])-Td/T*(array[2]-2*array[1]+array[0]);
-  }*/
 
-//-1<out<1
 void flypower(double outV, double outT)
 {
 	//上限下限
