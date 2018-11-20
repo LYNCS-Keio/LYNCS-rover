@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "RoverMotor.h"
+#include "local_libs/RoverMotor.h"
 namespace lyncs
 {
 
@@ -14,7 +14,7 @@ RoverMotor::RoverMotor()
 RoverMotor::~RoverMotor()
 {
 }
-RoverMotor::Init()
+void RoverMotor::Init()
 {
 	pinMode(kOutR1_, OUTPUT);
 	pinMode(kOutR2_, OUTPUT);
@@ -23,6 +23,8 @@ RoverMotor::Init()
 }
 void RoverMotor::RoverOutput(uint8_t outR,uint8_t outL){
     digitalWrite(kOutR1_, LOW);
-    analogWrite(kOutR2_, outR);wsqgcdjo
+    analogWrite(kOutR2_, outR);
+    digitalWrite(kOutL1_, LOW);
+    analogWrite(kOutL2_, outL);
 }
 } // namespace lyncs

@@ -17,5 +17,4 @@ class RoverMotor
 	void Init();
 	void RoverOutput(uint8_t outR,uint8_t outL);
 };
-
 } // namespace lyncs
