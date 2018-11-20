@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdio.h>
 #include <SPI.h>
 #include <Wire.h>
 #include "I2Cdev.h"
@@ -172,7 +171,7 @@ int asg = 100;
 char buf [100];
 int country = 0;
 int coucou = 0;
-int w = 0;qz9
+int w = 0;
 int e;
 int spi1;
 int spi2;
