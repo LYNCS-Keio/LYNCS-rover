@@ -14,37 +14,18 @@
 #define B_m 0.5996
 #define u 0
 #define PI 3.1415
-#define maxi 2000
-#define mini 1000
-#define hhigh 1900
-#define llow 1100
 #define echoPin 13 // Echo Pin
 #define trigPin 7 // Trigger Pin
-#define VB 300
 #define anga 1
 #define angb 1
 #define MaxP 1
 #define MaxC 1 // per sec
 #define MaxA 1
-#define chigh 400
-#define clow 0
 
-double ttt;
-double ddd = 0;
-double x_k;
-double P_k;
-double ovh;
-double nvh;
 double vh;
-double gk;
-double xk;
-double Pk;
 double oldr;
 double realaccel;
 
-double oldaax = 0;
-double oldaay = 0;
-double oldaaz = 0;
 double oldypr[3];
 lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
 double aax;
@@ -134,8 +115,6 @@ double ipp = 250;
 double dpp = 0;//ppp=1000で１０度22ぐらむ
 int ppp1;
 int land = 0;
-double h_a[3];
-double h_m = 250;
 int Alltimer1 = 0;
 int Alltimer2;
 long TIMET1 = 0;
@@ -153,9 +132,6 @@ double ptyold = 0;
 double ptz = 0;
 double ptzold = 0;
 double BPP = 520;
-long ford1 = 0;
-long ford2 = 0;
-long fordd = 0;
 
 double oldReal = 0;
 double kxa_m;
@@ -217,7 +193,6 @@ void flypower(double outr, double outl);
 void getrp(double, double);
 void cmpid(double array[], double a_m, double PB, double DT, double Td, double T);
 void gppid(double array[], double a_m, double PB, double DT, double Td, double T);
-long curMicros;
 char jo;
 //MS5xxx sensor(&Wire);
 void setup()
@@ -230,9 +205,6 @@ void setup()
   oldypr[2] = 0;
   countx = 0;
   jo = 1;
-  h_a[0] = 0;
-  h_a[1] = h_m;
-  h_a[2] = h_m;
   gy[0] = 0;
   gy[1] = 0;
   gy[2] = 0;
@@ -329,7 +301,6 @@ void loop()
   }
 
   double k_m = 0;
-  double h_m = 250;
   if (!dmpReady) return;
   while (!mpuInterrupt && fifoCount < packetSize) { }
   mpuInterrupt = false;
