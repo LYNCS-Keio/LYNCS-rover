@@ -28,12 +28,6 @@ double realaccel;
 
 double oldypr[3];
 lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
-double aax;
-double aay;
-double aaz;
-long int intaax;
-long int intaay;
-long int intaaz;
 long int intypr[3];
 double aaxT;
 double aayT;
@@ -48,7 +42,7 @@ double vn2 = 0;
 double rvn;
 double rvn1 = 0;
 double rvn2 = 0;
-double we = 1600;
+const double we = 1600;
 double wh = 2;
 
 MPU6050 mpu;
@@ -304,13 +298,10 @@ void loop()
 		y2 = ypr[2];
 
 		GetRotationMatrix(rotation_matrix, (double)y0, (double)y1, (double)y2);
-		aax = (double)aa.x / 7600;
-		aay = (double)aa.y / 8000;
-		aaz = (double)aa.z / 10200;
 
-		intaax = (long int)(aax * 1000);
-		intaay = (long int)(aay * 1000);
-		intaaz = (long int)(aaz * 1000);
+		long int intaax = (long int)(aa.x /7.6);
+		long int intaay = (long int)(aa.y /8.0);
+		long int intaaz = (long int)(aa.z /10.2);
 
 		intypr[0] = (long int)(ypr[0] * 1000);
 		intypr[1] = (long int)(ypr[1] * 1000);
