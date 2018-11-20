@@ -5,6 +5,7 @@
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "local_libs/Matrix.h"
+#include "local_libs/RoverMotor.h"
 
 #define bv  0.05745024
 #define cv 0.009521774
@@ -50,7 +51,7 @@ double oldaax = 0;
 double oldaay = 0;
 double oldaaz = 0;
 double oldypr[3];
-
+lyncs::RoverMotor r;
 double aax;
 double aay;
 double aaz;
@@ -158,6 +159,7 @@ long TIMET1 = 0;
 long TIMET2 = 0;
 
 double v00;
+	/* data */
 double vp = 0;
 double center = 0;
 double centerold = 0;
