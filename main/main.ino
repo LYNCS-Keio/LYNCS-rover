@@ -191,7 +191,6 @@ void change(double, double, double, double);
 void pidh(double array[], double a_m, double PB, double DT, double Td, double T);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
 void flypower(double outr, double outl);
-void getrp(double, double);
 void cmpid(double array[], double a_m, double PB, double DT, double Td, double T);
 void gppid(double array[], double a_m, double PB, double DT, double Td, double T);
 char jo;
@@ -451,7 +450,6 @@ void loop()
     cleenarray3(kya_a, -gy[1]);
     cleenarray3(kza_a, -gy[0]);
 
-    //  getrp(0,0);
 
     pidx_a(kxa_a, ptx, 180, 0, 0, 0.1);
     pidy_a(kya_a, pty, 180, 0, 0, 0.1);
@@ -550,28 +548,11 @@ void flypower(double outV, double outT)
 	}
 }
 
-void getrp(double a, double b)
-{
-	double A = tan(a);
-	double B = tan(b);
-	double pic = atan((A * cos(-gy[0]) + sin(-gy[0])) / B / sqrt(A * A + 1));
-	double ro = atan((A * sin(-gy[0]) - cos(-gy[0])) / (A * cos(-gy[0]) + sin(-gy[0])) * sin(pic));
-	double judge = 1 / (A * sin(-gy[0]) - cos(-gy[0])) * sin(ro);
-
-	if (judge > 0)
-	{
-		pic = (-1) * pic;
-		ro = (-1) * ro;
-	}
-	kxa_m = ro;
-	kya_m = pic;
-}
 double TimeUpdate()
 {
 	static double previous_time = micros(); //前回この関数が呼ばれた時間
 	double temp_time = micros();
-	double return_time =
-	judge temp_time - previous_time;
+	double return_time = temp_time - previous_time;
 	previous_time = temp_time;
 	return return_time;
 }
