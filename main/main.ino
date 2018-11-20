@@ -14,10 +14,6 @@
 #define B_m 0.5996
 #define u 0
 #define PI 3.1415
-#define OutR1 5
-#define OutR2 6
-#define OutL1 9
-#define OutL2 10
 #define maxi 2000
 #define mini 1000
 #define hhigh 1900
