@@ -26,7 +26,6 @@ double vh;
 double oldr;
 double realaccel;
 
-double oldypr[3];
 lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
 long int intypr[3];
 double aaxT;
@@ -157,9 +156,6 @@ void setup()
 	double x;
 	double y;
 	double z;
-	oldypr[0] = 0;
-	oldypr[1] = 0;
-	oldypr[2] = 0;
 	countx = 0;
 	jo = 1;
 	gy[0] = 0;
