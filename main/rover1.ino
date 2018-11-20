@@ -92,17 +92,6 @@ double qz8 = -0.03;
 double qz9 = 0.009;
 double qz10 = 0.99;
 
-double q1[3];
-double q2[3];
-double q3[3];
-double q4[3];
-double q5[3];
-double q6[3];
-double q7[3];
-double q8[3];
-double q9[3];
-double q10[3];
-
 double vx;
 double vy;
 double vz;
@@ -182,7 +171,7 @@ int asg = 100;
 char buf [100];
 int country = 0;
 int coucou = 0;
-int w = 0;
+int w = 0;qz9
 int e;
 int spi1;
 int spi2;
