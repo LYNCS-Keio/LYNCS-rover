@@ -5,6 +5,7 @@
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "local_libs/Matrix.h"
+#include "local_libs/RoverMotor.h"
 
 #define bv  0.05745024
 #define cv 0.009521774
@@ -50,7 +51,7 @@ double oldaax = 0;
 double oldaay = 0;
 double oldaaz = 0;
 double oldypr[3];
-
+lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
 double aax;
 double aay;
 double aaz;
@@ -101,7 +102,6 @@ double vn2 = 0;
 double rvn;
 double rvn1 = 0;
 double rvn2 = 0;
-double TIMEr;
 double we = 1600;
 double wh = 2;
 
@@ -147,6 +147,7 @@ long TIMET1 = 0;
 long TIMET2 = 0;
 
 double v00;
+	/* data */
 double vp = 0;
 double center = 0;
 double centerold = 0;
@@ -205,9 +206,6 @@ double vv;
 double y0;
 double y1;
 double y2;
-double timetime1 = 0;
-double timetime2 = 0;
-double TIME;
 volatile bool mpuInterrupt = false;   // indicates whether MPU interrupt pin has gone high
 void dmpDataReady() {
   mpuInterrupt = true;
@@ -219,6 +217,7 @@ void pidz(double array[], double a_m, double PB, double DT, double Td, double T)
 void pidy_a(double , double , double , double , double , double );
 void change(double, double, double, double);
 void pidh(double array[], double a_m, double PB, double DT, double Td, double T);
+double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
 void flypower(double outr, double outl);
 void getrp(double, double);
 void cmpid(double array[], double a_m, double PB, double DT, double Td, double T);
@@ -257,10 +256,7 @@ void setup()
 
   TCCR1B &= B11111000;
   TCCR1B |= B00000001;
-  pinMode(OutR1, OUTPUT);
-  pinMode(OutR2, OUTPUT);
-  pinMode(OutL1, OUTPUT);
-  pinMode(OutL2, OUTPUT);
+  rover_motor.Init();
   pinMode( echoPin, INPUT );
   pinMode( trigPin, OUTPUT );
   Wire.begin();
@@ -398,13 +394,11 @@ void loop()
     vx = rotation_matrix.GetElement(0,0) * aaxT +  rotation_matrix.GetElement(0,1)* aayT + rotation_matrix.GetElement(0,2) * aazT;
     vy = rotation_matrix.GetElement(1,0) * aaxT + rotation_matrix.GetElement(1,1) * aayT + rotation_matrix.GetElement(1,2) * aazT;
     vz = rotation_matrix.GetElement(2,0) * aaxT + rotation_matrix.GetElement(2,1) * aayT + rotation_matrix.GetElement(2,2) * aazT;
-    timetime2 = micros();
-    TIME = timetime2 - timetime1;
-    timetime1 = timetime2;
-    rvn = rvn1 + (vz - 1) * 9.8 * TIME / 1000000;
-    TIMEr = TIME / 1000000;
+    
+	double delta_time = TimeUpdate()/1000000;
+    rvn = rvn1 + (vz - 1) * 9.8 * delta_time;
     //vn = rvn;
-    vn = (rvn * we - rvn2 * we - (TIMEr / 2 * wh - 1) * (we - 2 / TIMEr) * vn2 - ((TIMEr / 2 * wh - 1) * (2 / TIMEr + we) + (we - 2 / TIMEr) * (1 + TIMEr / 2 * wh)) * vn1 ) / (1 + TIMEr / 2 * wh) / (2 / TIMEr + we);
+    vn = (rvn * we - rvn2 * we - (delta_time / 2 * wh - 1) * (we - 2 / delta_time) * vn2 - ((delta_time / 2 * wh - 1) * (2 / delta_time + we) + (we - 2 / delta_time) * (1 + delta_time / 2 * wh)) * vn1 ) / (1 + delta_time / 2 * wh) / (2 / delta_time + we);
     vn2 = vn1;
     vn1 = vn;
     rvn2 = rvn1;
@@ -443,10 +437,7 @@ void loop()
   //通信系
   if (cspi1 == cspi2) {
     while (cspi1 == 1) {
-      digitalWrite(OutR1, LOW);
-      analogWrite(OutR2, 0);
-      digitalWrite(OutL1, LOW);
-      analogWrite(OutL2, 0);
+		rover_motor.RoverOutput(0,0);
       Serial.println("END");
       delay(100000);
     }
@@ -573,21 +564,13 @@ void flypower(double outV, double outT ) {
   int outL;
   if (outT >= 0) {
     outR = (outT+outV) * 255;
-    digitalWrite(OutR1, LOW);
-    analogWrite(OutR2, outR);
-
     outL = outV * 255;
-    digitalWrite(OutL1, LOW);
-    analogWrite(OutL2, outL);
+	rover_motor.RoverOutput(outR,outL);
   }
   if (outT < 0) {
     outR = outV * 255;
-    digitalWrite(OutR1, LOW);
-    analogWrite(OutR2, outR);
-
     outL = (outV-outT) * 255;
-    digitalWrite(OutL1, LOW);
-    analogWrite(OutL2, outL);
+	rover_motor.RoverOutput(outR,outL);
   }
 
 }
@@ -610,6 +593,15 @@ void getrp(double a, double b) {
   kxa_m = ro;
   kya_m = pic;
 }
+double TimeUpdate()
+{
+	static double previous_time = micros(); //前回この関数が呼ばれた時間
+	double temp_time = micros();
+	double return_time = temp_time - previous_time;
+	previous_time = temp_time;
+	return return_time;
+}
+
 void GetRotationMatrix(lyncs::Matrix<double, 3, 3> &rotation_matrix, const double psi, const double phi, const double theta)
 {
 	double buffer1[3][3];
