@@ -552,16 +552,12 @@ void flypower(double outV, double outT)
 
 void getrp(double a, double b)
 {
-	double A;
-	double B;
-	double ro;
-	double pic;
-	double judge;
-	A = tan(a);
-	B = tan(b);
-	pic = atan((A * cos(-gy[0]) + sin(-gy[0])) / B / sqrt(A * A + 1));
-	ro = atan((A * sin(-gy[0]) - cos(-gy[0])) / (A * cos(-gy[0]) + sin(-gy[0])) * sin(pic));
-	judge = 1 / (A * sin(-gy[0]) - cos(-gy[0])) * sin(ro);
+	double A = tan(a);
+	double B = tan(b);
+	double pic = atan((A * cos(-gy[0]) + sin(-gy[0])) / B / sqrt(A * A + 1));
+	double ro = atan((A * sin(-gy[0]) - cos(-gy[0])) / (A * cos(-gy[0]) + sin(-gy[0])) * sin(pic));
+	double judge = 1 / (A * sin(-gy[0]) - cos(-gy[0])) * sin(ro);
+
 	if (judge > 0)
 	{
 		pic = (-1) * pic;
@@ -574,7 +570,8 @@ double TimeUpdate()
 {
 	static double previous_time = micros(); //前回この関数が呼ばれた時間
 	double temp_time = micros();
-	double return_time = temp_time - previous_time;
+	double return_time =
+	judge temp_time - previous_time;
 	previous_time = temp_time;
 	return return_time;
 }
