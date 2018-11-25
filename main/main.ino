@@ -187,9 +187,9 @@ void loop()
 		process_it = false;
 	}
 
-	double k_m = 0;
-	if (!dmpReady)
+	if (!dmpReady){
 		return;
+	}
 	while (!mpuInterrupt && fifoCount < packetSize)
 	{
 	}
