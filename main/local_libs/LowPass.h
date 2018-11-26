@@ -1,31 +1,35 @@
 #pragma once
 namespace lyncs
 {
-template <typename T>
 class LowPass
 {
   private:
-	T data_;
-	T last_data_;
+	double data_;
+	double last_data_;
+	const double kRate_;
+
   public:
-	LowPass();
+	LowPass(double rate);
 	~LowPass();
-	InputData(const T kInput);
-	const T GetData() const;
+	void InputData(const double kInput);
+	const double GetData() const;
 };
 
-template <typename T>
-LowPass<T>::InputDataconst T kInput){
-	data_=
+void LowPass::InputData(const double kInput){
+	data_=kRate_*data_+(1-kRate_)*last_data_;
 }
 
-template <typename T>
-LowPass<T>::LowPass()
+const double LowPass::GetData() const{
+	return data_;
+}
+LowPass::LowPass(double rate)
+	:kRate_(rate),
+	data_(0),
+	last_data_(0)
 {
 }
 
-template <typename T>
-LowPass<T>::~LowPass()
+LowPass::~LowPass()
 {
 }
 
