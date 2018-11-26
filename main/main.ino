@@ -22,8 +22,7 @@
 #define MaxC 1 // per sec
 #define MaxA 1
 
-double vh;
-double oldr;
+lyncs::LowPass vh(0.1);
 double realaccel;
 
 lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
@@ -63,11 +62,9 @@ long TIMET2 = 0;
 
 double v00;
 /* data */
-double center = 0;
-double centerold = 0;
+lyncs::LowPass center(0.2);
 double ptx = 0;
-double pty = 0;
-double ptyold = 0;
+lyncs::LowPass pty(0.05);
 
 double oldReal = 0;
 int fpga = 0;
@@ -289,15 +286,12 @@ void loop()
 
 		if (spi7 == spi8)
 		{
-			vh = (double)spi8 / 1000;
+			vh.InputData((double)spi8 / 1000);
 		}
 		if ((spi7 - spi8) == 256)
 		{
-			vh = (double)spi8 / 1000;
+			vh.InputData((double)spi8 / 1000);
 		}
-
-		vh = 0.1 * vh + 0.9 * oldr;
-		oldr = vh;
 	}
 
 	gzz0 = gy[0];
@@ -324,10 +318,8 @@ void loop()
 	}
 	if (spi1 == spi2)
 	{
-		center = (double)spi1 / 1000 * MaxC;
+		center.InputData((double)spi1 / 1000 * MaxC);
 	}
-	center = center * 0.2 + centerold * 0.8;
-	centerold = center;
 
 	if (spi5 == spi6)
 	{
@@ -335,9 +327,7 @@ void loop()
 	}
 	if (spi3 == spi4)
 	{
-		pty = (double)spi3 * MaxA / 1000 / 180 * 3.14;
-		pty = pty * 0.05 + ptyold * 0.95;
-		ptyold = pty;
+		pty.InputData((double)spi3 * MaxA / 1000 / 180 * PI);
 	}
 
 	cleenarray3(kz_a, gyv[2]);

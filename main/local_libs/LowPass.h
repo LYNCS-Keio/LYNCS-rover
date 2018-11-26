@@ -5,7 +5,6 @@ class LowPass
 {
   private:
 	double data_;
-	double last_data_;
 	const double kRate_;
 
   public:
@@ -16,7 +15,7 @@ class LowPass
 };
 
 void LowPass::InputData(const double kInput){
-	data_=kRate_*data_+(1-kRate_)*last_data_;
+	data_=kRate_*kInput+(1-kRate_)*data_;
 }
 
 const double LowPass::GetData() const{
@@ -24,8 +23,7 @@ const double LowPass::GetData() const{
 }
 LowPass::LowPass(double rate)
 	:kRate_(rate),
-	data_(0),
-	last_data_(0)
+	data_(0)
 {
 }
 
