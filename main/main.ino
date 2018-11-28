@@ -52,7 +52,6 @@ double countx;
 double vkz;
 double kxa_a[3];
 double kya_a[3];
-double kz_a[3];
 double kv_a[3];
 double gy[3];
 double gyv[3];
@@ -175,7 +174,6 @@ void setup()
 		y = 0.0000000001;
 		z = 0.0000000001;
 		cleenarray3(kxa_a, x);
-		cleenarray3(kz_a, z);
 	}
 	pinMode(MISO, OUTPUT);
 	// turn on SPI in slave mode
@@ -341,33 +339,14 @@ void loop()
 		ptyold = pty;
 	}
 
-	cleenarray3(kz_a, gyv[2]);
 	cleenarray3(kv_a, vn - v00);
-	gyro_pid.InputPID(gyv[2],0,0.01);//pid(kz_a, 0, ptx, 0, 0, 0.01);
+	gyro_pid.InputPID(gyv[2],0,0.01);
 	vkz += gyro_pid.GetPID();
 
 	flypower(0.5, 0);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
 	countx = countx + 1;
-}
-
-void cleenarray3(double array[], double newdata)
-{
-	array[0] = array[1];
-	array[1] = array[2];
-	array[2] = newdata;
-}
-double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T)
-{
-	double diff = array[1] - array[2];
-	double integral = (a_m - array[2]) * delta_T;
-	double differential = (array[2] - 2 * array[1] + array[0]) / delta_T;
-
-	double p = proportion_gain * diff;			 //P制御
-	double i = integral_gain * integral;		 //PI制御
-	double d = differential_gain * differential; //PID制御
-	return p + i - d;
 }
 
 double pid_a(double array[], const double a_m, const double proportion_gain)
