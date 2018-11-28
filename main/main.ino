@@ -343,9 +343,9 @@ void loop()
 
 	cleenarray3(kz_a, gyv[2]);
 	cleenarray3(kv_a, vn - v00);
+	gyro_pid.InputPID(gyv[2],0,0.01);//pid(kz_a, 0, ptx, 0, 0, 0.01);
+	vkz += gyro_pid.GetPID();
 
-	vkz += gyro_pid.InputPID(gyv[2],0,0.01);//pid(kz_a, 0, ptx, 0, 0, 0.01);
-	
 	flypower(0.5, 0);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
