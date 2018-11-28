@@ -4,6 +4,7 @@
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "local_libs/RoverMotor.h"
+#include "local_libs/PIDController.h"
 
 #define bv 0.05745024
 #define cv 0.009521774
@@ -26,6 +27,7 @@ double oldr;
 double realaccel;
 
 lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
+lyncs::PIDController gyro_pid = lyncs::PIDController(1,0,0);
 long int intypr[3];
 double aaxT;
 double aayT;
@@ -342,7 +344,8 @@ void loop()
 	cleenarray3(kz_a, gyv[2]);
 	cleenarray3(kv_a, vn - v00);
 
-	vkz += pid(kz_a, 0, ptx, 0, 0, 0.01);
+	vkz += gyro_pid.InputPID(gyv[2],0,0.01);//pid(kz_a, 0, ptx, 0, 0, 0.01);
+	
 	flypower(0.5, 0);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);

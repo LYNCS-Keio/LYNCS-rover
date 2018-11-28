@@ -13,6 +13,7 @@ class PIDController
 	double prev_error_;
 	double manipulative_variable_;
 
+	PIDController();
   public:
 	PIDController(const double kProportionGain, const double kIntegralGain, const double kDifferentialGain);
 	~PIDController();
