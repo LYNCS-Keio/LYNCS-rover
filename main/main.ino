@@ -110,9 +110,6 @@ void dmpDataReady()
 	mpuInterrupt = true;
 }
 void cal1(double f[3][3], double g[3][3]);
-void cleenarray3(double array[], double newdata);
-double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T);
-double pid_a(double array[], const double a_m, const double proportion_gain);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
 void flypower(double outr, double outl);
 void cmpid(double array[], double a_m, double PB, double DT, double Td, double T);
@@ -168,13 +165,6 @@ void setup()
 		packetSize = mpu.dmpGetFIFOPacketSize();
 	}
 	// 加速度/ジャイロセンサーの初期化。
-	for (int i_r = 0; i_r < 3; i_r++)
-	{ // 重力加速度から角度を求める。
-		x = 0.0000000001;
-		y = 0.0000000001;
-		z = 0.0000000001;
-		cleenarray3(kxa_a, x);
-	}
 	pinMode(MISO, OUTPUT);
 	// turn on SPI in slave mode
 	SPCR |= _BV(SPE);
@@ -339,7 +329,6 @@ void loop()
 		ptyold = pty;
 	}
 
-	cleenarray3(kv_a, vn - v00);
 	gyro_pid.InputPID(gyv[2],0,0.01);
 	vkz += gyro_pid.GetPID();
 
@@ -347,11 +336,6 @@ void loop()
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
 	countx = countx + 1;
-}
-
-double pid_a(double array[], const double a_m, const double proportion_gain)
-{
-	return proportion_gain * (a_m - array[2]);
 }
 
 void flypower(double outV, double outT)
