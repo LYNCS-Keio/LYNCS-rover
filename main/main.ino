@@ -1,9 +1,9 @@
 #include <math.h>
 #include <SPI.h>
 #include <Wire.h>
-#include "I2Cdev.h"
-#include "MPU6050_6Axis_MotionApps20.h"
-#include "local_libs/RoverMotor.h"
+#include <I2Cdev.h>
+#include <MPU6050_6Axis_MotionApps20.h>
+#include "./local_libs/RoverMotor.h"
 
 #define echoPin 13 // Echo Pin
 #define trigPin 7  // Trigger Pin
@@ -280,7 +280,7 @@ void loop()
 	{
 		while (cspi1 == 1)
 		{
-			rover_motor.RoverOutput(0, 0);
+			rover_motor.RoverPower(0, 0);
 			Serial.println("END");
 			delay(100000);
 		}
@@ -307,7 +307,7 @@ void loop()
 	cleenarray3(kv_a, vn - v00);
 
 	vkz += pid(kz_a, 0, ptx, 0, 0, 0.01);
-	flypower(0.5, 0);
+	rover_motor.RoverPower(0.5,0);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
 	countx = countx + 1;
@@ -334,42 +334,6 @@ double pid(double array[], const double a_m, const double proportion_gain, const
 double pid_a(double array[], const double a_m, const double proportion_gain)
 {
 	return proportion_gain * (a_m - array[2]);
-}
-
-void flypower(double outV, double outT)
-{
-	//上限下限
-	if (0.5 < outV)
-	{
-		outV = 0.5;
-	}
-	if (-0.5 > outV)
-	{
-		outV = -0.5;
-	}
-	if (0.5 < outT)
-	{
-		outT = 0.5;
-	}
-	if (-0.5 > outT)
-	{
-		outT = -0.5;
-	}
-
-	int outR;
-	int outL;
-	if (outT >= 0)
-	{
-		outR = (outT + outV) * 255;
-		outL = outV * 255;
-		rover_motor.RoverOutput(outR, outL);
-	}
-	if (outT < 0)
-	{
-		outR = outV * 255;
-		outL = (outV - outT) * 255;
-		rover_motor.RoverOutput(outR, outL);
-	}
 }
 
 double TimeUpdate()
