@@ -6,19 +6,8 @@
 #include "./local_libs/RoverMotor.h"
 #include "./local_libs/PIDController.h"
 
-#define bv 0.05745024
-#define cv 0.009521774
-#define A_M 0.0017
-#define A_m 0.0013
-#define B_M 0.53
-#define B_m 0.5996
-#define u 0
-#define PI 3.1415
 #define echoPin 13 // Echo Pin
 #define trigPin 7  // Trigger Pin
-#define anga 1
-#define angb 1
-#define MaxP 1
 #define MaxC 1 // per sec
 #define MaxA 1
 
@@ -51,15 +40,10 @@ double gztank = 0;
 double countx;
 double vkz;
 double kxa_a[3];
-double kya_a[3];
+double kz_a[3];
 double kv_a[3];
 double gy[3];
 double gyv[3];
-int land = 0;
-int Alltimer1 = 0;
-int Alltimer2;
-long TIMET1 = 0;
-long TIMET2 = 0;
 
 double v00;
 /* data */
@@ -69,11 +53,7 @@ double ptx = 0;
 double pty = 0;
 double ptyold = 0;
 
-double oldReal = 0;
-int fpga = 0;
 char buf[100];
-int country = 0;
-int coucou = 0;
 int spi1;
 int spi2;
 int spi3;
@@ -112,17 +92,10 @@ void dmpDataReady()
 void cal1(double f[3][3], double g[3][3]);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
 void flypower(double outr, double outl);
-void cmpid(double array[], double a_m, double PB, double DT, double Td, double T);
-void gppid(double array[], double a_m, double PB, double DT, double Td, double T);
-char jo;
 //MS5xxx sensor(&Wire);
 void setup()
 {
-	double x;
-	double y;
-	double z;
 	countx = 0;
-	jo = 1;
 	gy[0] = 0;
 	gy[1] = 0;
 	gy[2] = 0;
@@ -132,9 +105,6 @@ void setup()
 	kxa_a[0] = 0;
 	kxa_a[1] = 0;
 	kxa_a[2] = 0;
-	kya_a[0] = 0;
-	kya_a[1] = 0;
-	kya_a[2] = 0;
 	kv_a[0] = 0;
 	kv_a[1] = 0;
 	kv_a[2] = 0;
@@ -208,9 +178,9 @@ void loop()
 		process_it = false;
 	}
 
-	double k_m = 0;
-	if (!dmpReady)
+	if (!dmpReady){
 		return;
+	}
 	while (!mpuInterrupt && fifoCount < packetSize)
 	{
 	}
@@ -231,12 +201,7 @@ void loop()
 		mpu.dmpGetAccel(&aa, fifoBuffer);
 		mpu.dmpGetGravity(&gravity, &q);
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-		/* Serial.print("ypr\t");
-      Serial.print(gyv[0]);
-      Serial.print("\t");
-      Serial.print(gyv[1]);
-      Serial.print("\t");
-      Serial.println(gyv[2]);*/
+		
 		gy[0] = (double)ypr[0];
 		gy[1] = (double)ypr[1];
 		gy[2] = (double)ypr[2];
@@ -306,7 +271,7 @@ void loop()
 	{
 		while (cspi1 == 1)
 		{
-			rover_motor.RoverOutput(0, 0);
+			rover_motor.RoverPower(0, 0);
 			Serial.println("END");
 			delay(100000);
 		}
@@ -332,46 +297,34 @@ void loop()
 	gyro_pid.InputPID(gyv[2],0,0.01);
 	vkz += gyro_pid.GetPID();
 
-	flypower(0.5, 0);
+	vkz += pid(kz_a, 0, ptx, 0, 0, 0.01);
+	rover_motor.RoverPower(0.5,0);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
 	countx = countx + 1;
 }
 
-void flypower(double outV, double outT)
+void cleenarray3(double array[], double newdata)
 {
-	//上限下限
-	if (0.5 < outV)
-	{
-		outV = 0.5;
-	}
-	if (-0.5 > outV)
-	{
-		outV = -0.5;
-	}
-	if (0.5 < outT)
-	{
-		outT = 0.5;
-	}
-	if (-0.5 > outT)
-	{
-		outT = -0.5;
-	}
+	array[0] = array[1];
+	array[1] = array[2];
+	array[2] = newdata;
+}
+double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T)
+{
+	double diff = array[1] - array[2];
+	double integral = (a_m - array[2]) * delta_T;
+	double differential = (array[2] - 2 * array[1] + array[0]) / delta_T;
 
-	int outR;
-	int outL;
-	if (outT >= 0)
-	{
-		outR = (outT + outV) * 255;
-		outL = outV * 255;
-		rover_motor.RoverOutput(outR, outL);
-	}
-	if (outT < 0)
-	{
-		outR = outV * 255;
-		outL = (outV - outT) * 255;
-		rover_motor.RoverOutput(outR, outL);
-	}
+	double p = proportion_gain * diff;			 //P制御
+	double i = integral_gain * integral;		 //PI制御
+	double d = differential_gain * differential; //PID制御
+	return p + i - d;
+}
+
+double pid_a(double array[], const double a_m, const double proportion_gain)
+{
+	return proportion_gain * (a_m - array[2]);
 }
 
 double TimeUpdate()
