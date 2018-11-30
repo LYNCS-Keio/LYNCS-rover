@@ -7,7 +7,6 @@ class MedianFilter
 {
   private:
 	void bubbleSort(T list[N]);
-	T Median(T list[N]);
 	T data_array_[N];
 
   public:
