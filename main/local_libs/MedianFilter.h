@@ -18,7 +18,7 @@ class MedianFilter
 };
 
 template <typename T, unsigned int N>
-MedianFilter<T, N>::MedianFilter(/* args */)
+MedianFilter<T, N>::MedianFilter()
 {
 }
 
