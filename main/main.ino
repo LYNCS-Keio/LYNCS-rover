@@ -5,6 +5,7 @@
 #include <MPU6050_6Axis_MotionApps20.h>
 #include "./local_libs/RoverMotor.h"
 #include "./local_libs/PIDController.h"
+#include "./local_libs/MedianFilter.h"
 
 #define echoPin 13 // Echo Pin
 #define trigPin 7  // Trigger Pin
@@ -16,7 +17,13 @@ double oldr;
 double realaccel;
 
 lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
-lyncs::PIDController gyro_pid = lyncs::PIDController(1,0,0);
+lyncs::PIDController gyro_pid = lyncs::PIDController(1, 0, 0);
+
+//Frequency Counter variables (pin7)
+volatile unsigned int period_time = 0;
+const uint8_t kInput = 4; //4 はpin 7を指す（Arduino Microの場合）
+void freqCount();
+
 long int intypr[3];
 double aaxT;
 double aayT;
@@ -93,8 +100,24 @@ void cal1(double f[3][3], double g[3][3]);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
 void flypower(double outr, double outl);
 //MS5xxx sensor(&Wire);
+
+//frequency counter
+void freqCount()
+{
+	static unsigned long last_time;
+	static lyncs::MedianFilter<unsigned long,10> period_filter = lyncs::MedianFilter<unsigned long,10>();
+	unsigned long temp_time = micros();
+
+	period_filter.InputData(temp_time - last_time);
+	last_time = temp_time;
+
+	period_time = period_filter.GetData();
+
+}
+
 void setup()
 {
+	attachInterrupt(kInput, freqCount, FALLING);
 	countx = 0;
 	gy[0] = 0;
 	gy[1] = 0;
