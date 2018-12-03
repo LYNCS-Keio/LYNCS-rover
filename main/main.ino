@@ -4,9 +4,8 @@
 #include <I2Cdev.h>
 #include <MPU6050_6Axis_MotionApps20.h>
 #include "./local_libs/RoverMotor.h"
+#include "./PinDefinitions.h"
 
-#define echoPin 13 // Echo Pin
-#define trigPin 7  // Trigger Pin
 #define MaxC 1 // per sec
 #define MaxA 1
 
