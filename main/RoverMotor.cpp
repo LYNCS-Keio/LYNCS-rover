@@ -52,6 +52,6 @@ void RoverMotor::RoverPower(double outV, double outT)
 		outR = outV * 255.0;
 		outL = (outV - outT) * 255.0;
 	}
-	this->RoverOutput(outR, outL);
+	RoverOutput(outR, outL);
 }
 } // namespace lyncs
