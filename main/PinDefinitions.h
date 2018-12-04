@@ -1,5 +1,5 @@
 /*=========================================
-PinDefinition.h
+PinDefinitions.h
 Definitions of pin numbers used in this project
 Naoki Yano
 2018/12/4
