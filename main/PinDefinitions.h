@@ -10,6 +10,3 @@
 #define ROVERMOTOR_LEFT_2 10
 
 //MISO :Master In Slave Out 
-
-#define trigPin 7  // Trigger Pin
-#define echoPin 13 // Echo Pin

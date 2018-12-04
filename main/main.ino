@@ -112,8 +112,6 @@ void setup()
 	TCCR1B &= B11111000;
 	TCCR1B |= B00000001;
 	rover_motor.Init();
-	pinMode(echoPin, INPUT);
-	pinMode(trigPin, OUTPUT);
 	Wire.begin();
 	Wire.setClock(400000L);
 	Serial.begin(115200);
