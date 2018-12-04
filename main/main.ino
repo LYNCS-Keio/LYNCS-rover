@@ -127,7 +127,7 @@ void setup()
 	if (devStatus == 0)
 	{
 		mpu.setDMPEnabled(true);
-		attachInterrupt(2, dmpDataReady, RISING);
+		attachInterrupt(MPU_INTERRUPT_PIN, dmpDataReady, RISING);
 		mpuIntStatus = mpu.getIntStatus();
 		dmpReady = true;
 		packetSize = mpu.dmpGetFIFOPacketSize();
