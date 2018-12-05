@@ -1,2 +1,4 @@
 # LYNCS-rover
-２０１９種子島宇宙ロケットコンテストヘ向けたローバーのプログラム
+2019種子島宇宙ロケットコンテストヘ向けたローバーのプログラム
+## How to contribute
+See [Let's-get-start-with-git!](https://github.com/LYNCS-Keio/LYNCS-rover/wiki/Let's-get-start-with-git!)
