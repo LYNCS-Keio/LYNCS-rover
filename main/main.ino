@@ -5,20 +5,8 @@
 #include <MPU6050_6Axis_MotionApps20.h>
 #include "./local_libs/RoverMotor.h"
 #include "./local_libs/LowPass.h"
+#include "./PinDefinitions.h"
 
-#define bv 0.05745024
-#define cv 0.009521774
-#define A_M 0.0017
-#define A_m 0.0013
-#define B_M 0.53
-#define B_m 0.5996
-#define u 0
-#define PI 3.1415
-#define echoPin 13 // Echo Pin
-#define trigPin 7  // Trigger Pin
-#define anga 1
-#define angb 1
-#define MaxP 1
 #define MaxC 1 // per sec
 #define MaxA 1
 
@@ -49,16 +37,10 @@ double gztank = 0;
 double countx;
 double vkz;
 double kxa_a[3];
-double kya_a[3];
 double kz_a[3];
 double kv_a[3];
 double gy[3];
 double gyv[3];
-int land = 0;
-int Alltimer1 = 0;
-int Alltimer2;
-long TIMET1 = 0;
-long TIMET2 = 0;
 
 double v00;
 /* data */
@@ -66,11 +48,7 @@ lyncs::LowPass center(0.2);
 double ptx = 0;
 lyncs::LowPass pty(0.05);
 
-double oldReal = 0;
-int fpga = 0;
 char buf[100];
-int country = 0;
-int coucou = 0;
 int spi1;
 int spi2;
 int spi3;
@@ -112,17 +90,10 @@ double pid(double array[], const double a_m, const double proportion_gain, const
 double pid_a(double array[], const double a_m, const double proportion_gain);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
 void flypower(double outr, double outl);
-void cmpid(double array[], double a_m, double PB, double DT, double Td, double T);
-void gppid(double array[], double a_m, double PB, double DT, double Td, double T);
-char jo;
 //MS5xxx sensor(&Wire);
 void setup()
 {
-	double x;
-	double y;
-	double z;
 	countx = 0;
-	jo = 1;
 	gy[0] = 0;
 	gy[1] = 0;
 	gy[2] = 0;
@@ -132,9 +103,6 @@ void setup()
 	kxa_a[0] = 0;
 	kxa_a[1] = 0;
 	kxa_a[2] = 0;
-	kya_a[0] = 0;
-	kya_a[1] = 0;
-	kya_a[2] = 0;
 	kv_a[0] = 0;
 	kv_a[1] = 0;
 	kv_a[2] = 0;
@@ -142,8 +110,6 @@ void setup()
 	TCCR1B &= B11111000;
 	TCCR1B |= B00000001;
 	rover_motor.Init();
-	pinMode(echoPin, INPUT);
-	pinMode(trigPin, OUTPUT);
 	Wire.begin();
 	Wire.setClock(400000L);
 	Serial.begin(115200);
@@ -159,17 +125,17 @@ void setup()
 	if (devStatus == 0)
 	{
 		mpu.setDMPEnabled(true);
-		attachInterrupt(2, dmpDataReady, RISING);
+		attachInterrupt(MPU_INTERRUPT_PIN, dmpDataReady, RISING);
 		mpuIntStatus = mpu.getIntStatus();
 		dmpReady = true;
 		packetSize = mpu.dmpGetFIFOPacketSize();
 	}
 	// 加速度/ジャイロセンサーの初期化。
+	double x = 0.0000000001;
+	double y = 0.0000000001;
+	double z = 0.0000000001;
 	for (int i_r = 0; i_r < 3; i_r++)
 	{ // 重力加速度から角度を求める。
-		x = 0.0000000001;
-		y = 0.0000000001;
-		z = 0.0000000001;
 		cleenarray3(kxa_a, x);
 		cleenarray3(kz_a, z);
 	}
@@ -216,9 +182,9 @@ void loop()
 		process_it = false;
 	}
 
-	double k_m = 0;
-	if (!dmpReady)
+	if (!dmpReady){
 		return;
+	}
 	while (!mpuInterrupt && fifoCount < packetSize)
 	{
 	}
@@ -239,12 +205,7 @@ void loop()
 		mpu.dmpGetAccel(&aa, fifoBuffer);
 		mpu.dmpGetGravity(&gravity, &q);
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-		/* Serial.print("ypr\t");
-      Serial.print(gyv[0]);
-      Serial.print("\t");
-      Serial.print(gyv[1]);
-      Serial.print("\t");
-      Serial.println(gyv[2]);*/
+		
 		gy[0] = (double)ypr[0];
 		gy[1] = (double)ypr[1];
 		gy[2] = (double)ypr[2];
@@ -311,7 +272,7 @@ void loop()
 	{
 		while (cspi1 == 1)
 		{
-			rover_motor.RoverOutput(0, 0);
+			rover_motor.RoverPower(0, 0);
 			Serial.println("END");
 			delay(100000);
 		}
@@ -334,7 +295,7 @@ void loop()
 	cleenarray3(kv_a, vn - v00);
 
 	vkz += pid(kz_a, 0, ptx, 0, 0, 0.01);
-	flypower(0.5, 0);
+	rover_motor.RoverPower(0.5,0);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
 	countx = countx + 1;
@@ -361,42 +322,6 @@ double pid(double array[], const double a_m, const double proportion_gain, const
 double pid_a(double array[], const double a_m, const double proportion_gain)
 {
 	return proportion_gain * (a_m - array[2]);
-}
-
-void flypower(double outV, double outT)
-{
-	//上限下限
-	if (0.5 < outV)
-	{
-		outV = 0.5;
-	}
-	if (-0.5 > outV)
-	{
-		outV = -0.5;
-	}
-	if (0.5 < outT)
-	{
-		outT = 0.5;
-	}
-	if (-0.5 > outT)
-	{
-		outT = -0.5;
-	}
-
-	int outR;
-	int outL;
-	if (outT >= 0)
-	{
-		outR = (outT + outV) * 255;
-		outL = outV * 255;
-		rover_motor.RoverOutput(outR, outL);
-	}
-	if (outT < 0)
-	{
-		outR = outV * 255;
-		outL = (outV - outT) * 255;
-		rover_motor.RoverOutput(outR, outL);
-	}
 }
 
 double TimeUpdate()
