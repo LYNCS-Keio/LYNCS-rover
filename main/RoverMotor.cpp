@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "./local_libs/RoverMotor.h"
+#include "./PinDefinitions.h"
+
 #define INLINE inline __attribute__((always_inline))
 
 INLINE double Limit(double inf, double sup, double x)
@@ -11,10 +13,10 @@ namespace lyncs
 {
 
 RoverMotor::RoverMotor()
-	: kOutR1_(5),
-	  kOutR2_(6),
-	  kOutL1_(9),
-	  kOutL2_(10)
+	: kOutR1_(ROVERMOTOR_RIGHT_1),
+	  kOutR2_(ROVERMOTOR_RIGHT_2),
+	  kOutL1_(ROVERMOTOR_LEFT_1),
+	  kOutL2_(ROVERMOTOR_LEFT_2)
 {
 }
 
