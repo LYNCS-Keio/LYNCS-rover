@@ -4,7 +4,7 @@
 
 #define INLINE inline __attribute__((always_inline))
 
-INLINE double Limit(double inf, double sup, double x)
+INLINE constexpr double Limit(double inf, double sup, double x)
 {
 	return max(inf, min(sup, x));
 }
@@ -40,20 +40,10 @@ void RoverMotor::RoverOutput(uint8_t outR, uint8_t outL)
 void RoverMotor::RoverPower(double outV, double outT)
 {
 	//上限下限
-	outV = Limit(-0.5, 0.5, outV);
+	outV = Limit(0, 1, outV);
 	outT = Limit(-0.5, 0.5, outT);
-	uint8_t outR;
-	uint8_t outL;
-	if (outT >= 0)
-	{
-		outR = (outT + outV) * 255.0;
-		outL = outV * 255.0;
-	}
-	if (outT < 0)
-	{
-		outR = outV * 255.0;
-		outL = (outV - outT) * 255.0;
-	}
+	uint8_t outR = (0.5 + outT) * outV * 255;
+	uint8_t outL = (0.5 - outT) * outV * 255;
 	RoverOutput(outR, outL);
 }
 } // namespace lyncs
