@@ -28,7 +28,7 @@ struct Matrix
 	const Matrix<T, COLUMN, ROW> operator+(const Matrix<T, COLUMN, ROW> &matrix) const;
 	template <const unsigned int ROW2>
 	const Matrix<T, COLUMN, ROW2> operator*(const Matrix<T, ROW, ROW2> &matrix) const;
-	Matrix<T, COLUMN, ROW> &operator=(Matrix<T, COLUMN, ROW> matrix);
+	const Matrix<T, COLUMN, ROW> operator=(Matrix<T, COLUMN, ROW> matrix);
 };
 
 template <typename T, const unsigned int COLUMN, const unsigned int ROW>
@@ -83,13 +83,13 @@ const void Matrix<T, COLUMN, ROW>::WriteElement(unsigned int i, unsigned int j, 
 }
 
 template <typename T, const unsigned int COLUMN, const unsigned int ROW>
-Matrix<T, COLUMN, ROW> &Matrix<T, COLUMN, ROW>::operator=(Matrix<T, COLUMN, ROW> matrix)
+const Matrix<T, COLUMN, ROW> Matrix<T, COLUMN, ROW>::operator=(Matrix<T, COLUMN, ROW> matrix)
 {
 	for (int i = 0; i < COLUMN; i++)
 	{
 		for (int j = 0; i < ROW; j++)
 		{
-			matrix_[i][j] = matrix.GetElement(i, j);
+			this->WriteElement(i, j, matrix.GetElement(i, j));
 		}
 	}
 	return *this;

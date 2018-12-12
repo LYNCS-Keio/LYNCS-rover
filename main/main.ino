@@ -349,5 +349,5 @@ void getkgl(double f, double e, double d)
   lyncs::Matrix<double,3,3> Rd = {{{1, 0, 0}, {0, cos(d), -1 * sin(d)}, {0, sin(d), cos(d)}}};
   lyncs::Matrix<double,3,3> Re = {{{cos(e), 0, sin(e)}, {0, 1, 0}, { -sin(e), 0, cos(e)}}};
   lyncs::Matrix<double,3,3> Rf = {{{cos(f), -1 * sin(f), 0}, {sin(f), cos(f), 0}, {0, 0, 1}}};
-  rotation_matrix = Rd*Rf*Re;
+  rotation_matrix = (Rd*Rf)*Re;
 }
