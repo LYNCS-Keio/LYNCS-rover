@@ -13,10 +13,6 @@ namespace lyncs
 {
 
 RoverMotor::RoverMotor()
-	: kOutR1_(ROVERMOTOR_RIGHT_1),
-	  kOutR2_(ROVERMOTOR_RIGHT_2),
-	  kOutL1_(ROVERMOTOR_LEFT_1),
-	  kOutL2_(ROVERMOTOR_LEFT_2)
 {
 }
 
@@ -25,25 +21,23 @@ RoverMotor::~RoverMotor()
 }
 void RoverMotor::Init()
 {
-	pinMode(kOutR1_, OUTPUT);
-	pinMode(kOutR2_, OUTPUT);
-	pinMode(kOutL1_, OUTPUT);
-	pinMode(kOutL2_, OUTPUT);
+	servo_right_.attach(ROVERMOTOR_RIGHT);
+	servo_left_.attach(ROVERMOTOR_LEFT);
 }
-void RoverMotor::RoverOutput(uint8_t outR, uint8_t outL)
+void RoverMotor::RoverOutput(double outR, double outL)
 {
-	digitalWrite(kOutR1_, LOW);
-	analogWrite(kOutR2_, outR);
-	digitalWrite(kOutL1_, LOW);
-	analogWrite(kOutL2_, outL);
+	servo_right_.writeMicroseconds(1500 + outR * 500);
+	servo_left_.writeMicroseconds(1500 + outL * 500);
 }
 void RoverMotor::RoverPower(double outV, double outT)
 {
 	//上限下限
-	outV = Limit(0, 1, outV);
-	outT = Limit(-0.5, 0.5, outT);
-	uint8_t outR = (0.5 + outT) * outV * 255;
-	uint8_t outL = (0.5 - outT) * outV * 255;
+	outV = Limit(-1, 1, outV);
+	outT = Limit(0, 1, outT);
+
+	double outR = outV * outT;
+	double outL = outV * (1.0 - outT);
+
 	RoverOutput(outR, outL);
 }
 } // namespace lyncs
