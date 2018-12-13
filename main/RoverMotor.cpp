@@ -33,10 +33,10 @@ void RoverMotor::RoverPower(double outV, double outT)
 {
 	//上限下限
 	outV = Limit(-1, 1, outV);
-	outT = Limit(0, 1, outT);
+	outT = Limit(-1, 1, outT);
 
-	double outR = outV * outT;
-	double outL = outV * (1.0 - outT);
+	double outR = (outV + outT)/2;
+	double outL = (outV - outT)/2;
 
 	RoverOutput(outR, outL);
 }
