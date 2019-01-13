@@ -37,13 +37,13 @@ MPU6050 mpu;
 double gzzz;
 double gzz0;
 double gztank = 0;
-double countx;
+double countx = 0;
 double vkz;
-double kxa_a[3];
+double kxa_a[3] = {0,0,0};
 double kz_a[3];
-double kv_a[3];
-double gy[3];
-double gyv[3];
+double kv_a[3] = {0,0,0};
+double gy[3] = {0,0,0};
+double gyv[3] = {0,0,0};
 
 double v00;
 /* data */
@@ -96,20 +96,6 @@ void flypower(double outr, double outl);
 //MS5xxx sensor(&Wire);
 void setup()
 {
-	countx = 0;
-	gy[0] = 0;
-	gy[1] = 0;
-	gy[2] = 0;
-	gyv[0] = 0;
-	gyv[1] = 0;
-	gyv[2] = 0;
-	kxa_a[0] = 0;
-	kxa_a[1] = 0;
-	kxa_a[2] = 0;
-	kv_a[0] = 0;
-	kv_a[1] = 0;
-	kv_a[2] = 0;
-
 	TCCR1B &= B11111000;
 	TCCR1B |= B00000001;
 	rover_motor.Init();
