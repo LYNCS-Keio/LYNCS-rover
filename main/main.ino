@@ -92,7 +92,6 @@ void cleenarray3(double array[], double newdata);
 double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T);
 double pid_a(double array[], const double a_m, const double proportion_gain);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
-void flypower(double outr, double outl);
 //MS5xxx sensor(&Wire);
 void setup()
 {
