@@ -8,7 +8,6 @@
 #include "./local_libs/LowPass.h"
 #include "./PinDefinitions.h"
 
-
 #define MaxC 1 // per sec
 #define MaxA 1
 
@@ -16,7 +15,7 @@ lyncs::LowPass<double> vh(0.1);
 double realaccel;
 
 lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
-lyncs::Matrix<double,3,3> rotation_matrix = lyncs::Matrix<double,3,3>();
+lyncs::Matrix<double, 3, 3> rotation_matrix = lyncs::Matrix<double, 3, 3>();
 long int intypr[3];
 double aaxT;
 double aayT;
@@ -38,11 +37,11 @@ double gzzz;
 double gztank = 0;
 double countx = 0;
 double vkz;
-double kxa_a[3] = {0,0,0};
+double kxa_a[3] = {0, 0, 0};
 double kz_a[3];
-double kv_a[3] = {0,0,0};
-double gy[3] = {0,0,0};
-double gyv[3] = {0,0,0};
+double kv_a[3] = {0, 0, 0};
+double gy[3] = {0, 0, 0};
+double gyv[3] = {0, 0, 0};
 
 double v00;
 /* data */
@@ -90,7 +89,7 @@ void cleenarray3(double array[], double newdata);
 double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T);
 double pid_a(double array[], const double a_m, const double proportion_gain);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
-void GetRotMatrix(lyncs::Matrix<double,3,3> &rot_matrix,double f, double e, double d);
+void GetRotMatrix(lyncs::Matrix<double, 3, 3> &rot_matrix, double f, double e, double d);
 //MS5xxx sensor(&Wire);
 void setup()
 {
@@ -101,7 +100,8 @@ void setup()
 	Wire.setClock(400000L);
 	Serial.begin(115200);
 	while (!Serial)
-		;
+	{
+	}
 
 	mpu.initialize();
 	devStatus = mpu.dmpInitialize();
@@ -169,7 +169,8 @@ void loop()
 		process_it = false;
 	}
 
-	if (!dmpReady){
+	if (!dmpReady)
+	{
 		return;
 	}
 	while (!mpuInterrupt && fifoCount < packetSize)
@@ -185,14 +186,16 @@ void loop()
 	else if (mpuIntStatus & 0x02)
 	{
 		while (fifoCount < packetSize)
+		{
 			fifoCount = mpu.getFIFOCount();
+		}
 		mpu.getFIFOBytes(fifoBuffer, packetSize);
 		fifoCount -= packetSize;
 		mpu.dmpGetQuaternion(&q, fifoBuffer);
 		mpu.dmpGetAccel(&aa, fifoBuffer);
 		mpu.dmpGetGravity(&gravity, &q);
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-		
+
 		gy[0] = (double)ypr[0];
 		gy[1] = (double)ypr[1];
 		gy[2] = (double)ypr[2];
@@ -204,7 +207,7 @@ void loop()
 		y1 = (-1) * ypr[1];
 		y2 = ypr[2];
 
-		GetRotMatrix(rotation_matrix,(double)y0, (double)y1, (double)y2);
+		GetRotMatrix(rotation_matrix, (double)y0, (double)y1, (double)y2);
 
 		long int intaax = (long int)(aa.x / 7.6);
 		long int intaay = (long int)(aa.y / 8.0);
@@ -220,7 +223,7 @@ void loop()
 		aaxT *= 0.000000001;
 		aayT *= 0.000000001;
 		aazT *= 0.000000001;
-		vz = rotation_matrix.GetElement(2,0) * aaxT +  rotation_matrix.GetElement(2,1)* aayT + rotation_matrix.GetElement(2,2) * aazT;
+		vz = rotation_matrix.GetElement(2, 0) * aaxT + rotation_matrix.GetElement(2, 1) * aayT + rotation_matrix.GetElement(2, 2) * aazT;
 
 		double delta_time = TimeUpdate() / 1000000;
 		rvn = rvn1 + (vz - 1) * 9.8 * delta_time;
@@ -282,10 +285,10 @@ void loop()
 	cleenarray3(kv_a, vn - v00);
 
 	vkz += pid(kz_a, 0, ptx, 0, 0, 0.01);
-	rover_motor.RoverPower(0.5,0);
+	rover_motor.RoverPower(0.5, 0);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
-	countx = countx + 1;
+	countx++;
 }
 
 void cleenarray3(double array[], double newdata)
@@ -319,10 +322,10 @@ double TimeUpdate()
 	previous_time = temp_time;
 	return return_time;
 }
-void GetRotMatrix(lyncs::Matrix<double,3,3> &rot_matrix,double f, double e, double d)
+void GetRotMatrix(lyncs::Matrix<double, 3, 3> &rot_matrix, double f, double e, double d)
 {
-  lyncs::Matrix<double,3,3> Rd = {{{1, 0, 0}, {0, cos(d), -1 * sin(d)}, {0, sin(d), cos(d)}}};
-  lyncs::Matrix<double,3,3> Re = {{{cos(e), 0, sin(e)}, {0, 1, 0}, { -sin(e), 0, cos(e)}}};
-  lyncs::Matrix<double,3,3> Rf = {{{cos(f), -1 * sin(f), 0}, {sin(f), cos(f), 0}, {0, 0, 1}}};
-  rot_matrix = Rd*Rf*Re;
+	lyncs::Matrix<double, 3, 3> Rd = {{{1, 0, 0}, {0, cos(d), -1 * sin(d)}, {0, sin(d), cos(d)}}};
+	lyncs::Matrix<double, 3, 3> Re = {{{cos(e), 0, sin(e)}, {0, 1, 0}, {-sin(e), 0, cos(e)}}};
+	lyncs::Matrix<double, 3, 3> Rf = {{{cos(f), -1 * sin(f), 0}, {sin(f), cos(f), 0}, {0, 0, 1}}};
+	rot_matrix = Rd * Rf * Re;
 }
