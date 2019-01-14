@@ -90,6 +90,7 @@ void cleenarray3(double array[], double newdata);
 double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T);
 double pid_a(double array[], const double a_m, const double proportion_gain);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
+void GetRotMatrix(lyncs::Matrix<double,3,3> &rot_matrix,double f, double e, double d);
 //MS5xxx sensor(&Wire);
 void setup()
 {
@@ -203,7 +204,7 @@ void loop()
 		y1 = (-1) * ypr[1];
 		y2 = ypr[2];
 
-		getkgl((double)y0, (double)y1, (double)y2);
+		GetRotMatrix(rotation_matrix,(double)y0, (double)y1, (double)y2);
 
 		long int intaax = (long int)(aa.x / 7.6);
 		long int intaay = (long int)(aa.y / 8.0);
@@ -318,10 +319,10 @@ double TimeUpdate()
 	previous_time = temp_time;
 	return return_time;
 }
-void getkgl(double f, double e, double d)
+void GetRotMatrix(lyncs::Matrix<double,3,3> &rot_matrix,double f, double e, double d)
 {
   lyncs::Matrix<double,3,3> Rd = {{{1, 0, 0}, {0, cos(d), -1 * sin(d)}, {0, sin(d), cos(d)}}};
   lyncs::Matrix<double,3,3> Re = {{{cos(e), 0, sin(e)}, {0, 1, 0}, { -sin(e), 0, cos(e)}}};
   lyncs::Matrix<double,3,3> Rf = {{{cos(f), -1 * sin(f), 0}, {sin(f), cos(f), 0}, {0, 0, 1}}};
-  rotation_matrix = Rd*Rf*Re;
+  rot_matrix = Rd*Rf*Re;
 }
