@@ -35,7 +35,6 @@ double wh = 2;
 MPU6050 mpu;
 
 double gzzz;
-double gzz0;
 double gztank = 0;
 double countx = 0;
 double vkz;
@@ -242,7 +241,6 @@ void loop()
 		}
 	}
 
-	gzz0 = gy[0];
 	if ((gzzz - gy[0]) > PI)
 	{
 		gztank += 2 * PI;
@@ -251,8 +249,9 @@ void loop()
 	{
 		gztank += (-2) * PI;
 	}
-	gy[0] = gztank + gy[0];
-	gzzz = gzz0;
+
+	gzzz = gy[0];
+	gy[0] += gztank;
 
 	//通信系
 	if (cspi1 == cspi2)
