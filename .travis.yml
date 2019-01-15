@@ -4,7 +4,7 @@ before_install:
   - sleep 3
   - export DISPLAY=:1.0
 install:
-  - ./bin/install_dependencies.sh
+  - bash bin/install_dependencies.sh
 script:
   - arduino --verify --board arduino:avr:micro main/main.ino
 notifications:
