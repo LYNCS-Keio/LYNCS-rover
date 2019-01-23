@@ -6,6 +6,7 @@
 #include "./local_libs/RoverMotor.h"
 #include "./local_libs/Matrix.h"
 #include "./local_libs/LowPass.h"
+#include "./local_libs/PIDController.h"
 #include "./PinDefinitions.h"
 
 #define MaxC 1 // per sec
@@ -16,6 +17,8 @@ double realaccel;
 
 lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
 lyncs::Matrix<double, 3, 3> rotation_matrix = lyncs::Matrix<double, 3, 3>();
+lyncs::PIDController vkz_pid(1,0,0);
+lyncs::PIDController kv_a_pid(1,0,0);
 long int intypr[3];
 double aaxT;
 double aayT;
@@ -36,10 +39,7 @@ MPU6050 mpu;
 double gzzz;
 double gztank = 0;
 double countx = 0;
-double vkz;
-double kxa_a[3] = {0, 0, 0};
-double kz_a[3];
-double kv_a[3] = {0, 0, 0};
+double vkz = 0;
 double gy[3] = {0, 0, 0};
 double gyv[3] = {0, 0, 0};
 
@@ -85,7 +85,6 @@ void dmpDataReady()
 {
 	mpuInterrupt = true;
 }
-void cleenarray3(double array[], double newdata);
 double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T);
 double pid_a(double array[], const double a_m, const double proportion_gain);
 double TimeUpdate(); //前回この関数が呼ばれてからの時間 us単位
@@ -116,15 +115,6 @@ void setup()
 		mpuIntStatus = mpu.getIntStatus();
 		dmpReady = true;
 		packetSize = mpu.dmpGetFIFOPacketSize();
-	}
-	// 加速度/ジャイロセンサーの初期化。
-	double x = 0.0000000001;
-	double y = 0.0000000001;
-	double z = 0.0000000001;
-	for (int i_r = 0; i_r < 3; i_r++)
-	{ // 重力加速度から角度を求める。
-		cleenarray3(kxa_a, x);
-		cleenarray3(kz_a, z);
 	}
 	pinMode(MISO, OUTPUT);
 	// turn on SPI in slave mode
@@ -280,38 +270,14 @@ void loop()
 	{
 		pty.InputData((double)spi3 * MaxA / 1000 / 180 * PI);
 	}
+	vkz_pid.InputPID(gyv[2],0,1);
+	kv_a_pid.InputPID(vn - v00,0,1);
 
-	cleenarray3(kz_a, gyv[2]);
-	cleenarray3(kv_a, vn - v00);
-
-	vkz += pid(kz_a, 0, ptx, 0, 0, 0.01);
+	vkz += vkz_pid.GetPID();;
 	rover_motor.RoverPower(0.5, 0);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
 	countx++;
-}
-
-void cleenarray3(double array[], double newdata)
-{
-	array[0] = array[1];
-	array[1] = array[2];
-	array[2] = newdata;
-}
-double pid(double array[], const double a_m, const double proportion_gain, const double integral_gain, const double differential_gain, const double delta_T)
-{
-	double diff = array[1] - array[2];
-	double integral = (a_m - array[2]) * delta_T;
-	double differential = (array[2] - 2 * array[1] + array[0]) / delta_T;
-
-	double p = proportion_gain * diff;			 //P制御
-	double i = integral_gain * integral;		 //PI制御
-	double d = differential_gain * differential; //PID制御
-	return p + i - d;
-}
-
-double pid_a(double array[], const double a_m, const double proportion_gain)
-{
-	return proportion_gain * (a_m - array[2]);
 }
 
 double TimeUpdate()
