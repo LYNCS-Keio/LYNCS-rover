@@ -77,7 +77,7 @@ static void pabort(const char *s)
 	abort();
 }
 
-static const char *device = "/dev/spidev0.0";
+static const char *device = "/dev/spidev1.2";
 static uint8_t mode;
 static uint8_t bits = 8;
 static uint32_t speed = 500000;
@@ -248,25 +248,18 @@ float getAltitude(float pressure) {
   return 44330.0 * (1.0 - pow(pressure / MEAN_SEA_LEVEL_PRESSURE, 0.190294957));
 }
 
-static void transfer(int fd,int e,int f,int x,int y,int z,int x1,int y1,int z1,unsigned char bob,unsigned char coc)
+void ByteTranslation(unsigned char x_separated[4],unsigned int x)
+{
+	const unsigned int char_size = 8;
+	for (int i = 0; i < 4; i++)
+	{
+		x_separated[i] = ((x >> char_size * i) & 0xFF);
+	}
+}
+
+static void transfer(int fd, int e, int f, int x, int y, int z, int x1, int y1, int z1, unsigned char bob, unsigned char coc)
 {
 	int ret;
-	unsigned int a;
-	unsigned int b;
-	unsigned int xx;
-	unsigned int yy;
-	unsigned int zz;
-	unsigned int xxx;
-	unsigned int yyy;
-	unsigned int zzz;
-	unsigned int g;
-	unsigned int h;
-	unsigned int xx1;
-	unsigned int yy1;
-	unsigned int zz1;
-	unsigned int xxx1;
-	unsigned int yyy1;
-	unsigned int zzz1;
 	unsigned char c[4];
 	unsigned char d[4];
 	unsigned char xx2[4];
@@ -275,93 +268,30 @@ static void transfer(int fd,int e,int f,int x,int y,int z,int x1,int y1,int z1,u
 	unsigned char xxx2[4];
 	unsigned char yyy2[4];
 	unsigned char zzz2[4];
-	a=(unsigned int)e;
-	b=(unsigned int)f;
-	xx=(unsigned int)x;
-	yy=(unsigned int)y;
-	zz=(unsigned int)z;
-	xxx=(unsigned int)x1;
-	yyy=(unsigned int)y1;
-	zzz=(unsigned int)z1;
-	c[0]=(unsigned char)(a%256);
-	g=a/256;
-	d[0]=(unsigned char)(b%256);
-	h=b/256;
-	xx2[0]=(unsigned char)(xx%256);
-	xx1=xx/256;
-	yy2[0]=(unsigned char)(yy%256);
-	yy1=yy/256;
-	zz2[0]=(unsigned char)(zz%256);
-	zz1=zz/256;
-	xxx2[0]=(unsigned char)(xxx%256);
-	xxx1=xxx/256;
-	yyy2[0]=(unsigned char)(yyy%256);
-	yyy1=yyy/256;
-	zzz2[0]=(unsigned char)(zzz%256);
-	zzz1=zzz/256;
-	c[1]=(unsigned char)(g%256);
-	g=g/256;
-	d[1]=(unsigned char)(h%256);
-	h=h/256;
 
-	xx2[1]=(unsigned char)(xx1%256);
-	xx1=xx1/256;
-	yy2[1]=(unsigned char)(yy1%256);
-	yy1=yy1/256;
-	zz2[1]=(unsigned char)(zz1%256);
-	zz1=zz1/256;
-	xxx2[1]=(unsigned char)(xxx1%256);
-	xxx1=xxx1/256;
-	yyy2[1]=(unsigned char)(yyy1%256);
-	yyy1=yyy1/256;
-	zzz2[1]=(unsigned char)(zzz1%256);
-	zzz1=zzz1/256;
+	ByteTranslation(c, e);
+	ByteTranslation(d, f);
+	ByteTranslation(xx2, x);
+	ByteTranslation(yy2, y);
+	ByteTranslation(zz2, z);
+	ByteTranslation(xxx2, x1);
+	ByteTranslation(yyy2, y1);
+	ByteTranslation(zzz2, z1);
 
-	c[2]=(unsigned char)(g%256);
-	g=g/256;
-	d[2]=(unsigned char)(h%256);
-	h=h/256;
-	xx2[2]=(unsigned char)(xx1%256);
-	xx1=xx1/256;
-	yy2[2]=(unsigned char)(yy1%256);
-	yy1=yy1/256;
-	zz2[2]=(unsigned char)(zz1%256);
-	zz1=zz1/256;
-	xxx2[2]=(unsigned char)(xxx1%256);
-	xxx1=xxx1/256;
-	yyy2[2]=(unsigned char)(yyy1%256);
-	yyy1=yyy1/256;
-	zzz2[2]=(unsigned char)(zzz1%256);
-	zzz1=zzz1/256;
-	c[3]=(unsigned char)(g%256);
-	g=g/256;
-	d[3]=(unsigned char)(h%256);
-	h=h/256;
-	xx2[3]=(unsigned char)(xx1%256);
-	xx1=xx1/256;
-	yy2[3]=(unsigned char)(yy1%256);
-	yy1=yy1/256;
-	zz2[3]=(unsigned char)(zz1%256);
-	zz1=zz1/256;
-	xxx2[3]=(unsigned char)(xxx1%256);
-	xxx1=xxx1/256;
-	yyy2[3]=(unsigned char)(yyy1%256);
-	yyy1=yyy1/256;
-	zzz2[3]=(unsigned char)(zzz1%256);
-	zzz1=zzz1/256;
 	uint8_t tx[] = {
-		c[0],c[1],c[2],c[3],
-		d[0],d[1],d[2],d[3],
-		xx2[0],xx2[1],xx2[2],xx2[3],
-		yy2[0],yy2[1],yy2[2],yy2[3],
-		zz2[0],zz2[1],zz2[2],zz2[3],
-		xxx2[0],xxx2[1],xxx2[2],xxx2[3],
-		yyy2[0],yy2[1],yyy2[2],yyy2[3],
-		zzz2[0],zzz2[1],zzz2[2],zzz2[3],
-		bob,coc,
-        0x0A
+		c[0], c[1], c[2], c[3],
+		d[0], d[1], d[2], d[3],
+		xx2[0], xx2[1], xx2[2], xx2[3],
+		yy2[0], yy2[1], yy2[2], yy2[3],
+		zz2[0], zz2[1], zz2[2], zz2[3],
+		xxx2[0], xxx2[1], xxx2[2], xxx2[3],
+		yyy2[0], yy2[1], yyy2[2], yyy2[3],
+		zzz2[0], zzz2[1], zzz2[2], zzz2[3],
+		bob, coc,
+		0x0A};
+	uint8_t rx[ARRAY_SIZE(tx)] = {
+		0,
 	};
-	uint8_t rx[ARRAY_SIZE(tx)] = {0, };
 	struct spi_ioc_transfer tr = {
 		.tx_buf = (unsigned long)tx,
 		.rx_buf = (unsigned long)rx,
