@@ -59,6 +59,7 @@ https://github.com/adafruit/Adafruit_BME280_Library/blob/master/Adafruit_BME280.
 #include <linux/spi/spidev.h>
 #include <time.h>
 #include "bme280.h"
+#include "Csearch.cpp"
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
@@ -69,6 +70,7 @@ double TIME;
 double TIME2;
 double TIME1;
 
+int test = Csearch();
 
 
 static void pabort(const char *s)
@@ -248,7 +250,7 @@ float getAltitude(float pressure) {
   return 44330.0 * (1.0 - pow(pressure / MEAN_SEA_LEVEL_PRESSURE, 0.190294957));
 }
 
-void ByteTranslation(unsigned char x_separated[4],unsigned int x)
+void ByteTranslation(unsigned char x_separated[4],int x)
 {
 	const unsigned int char_size = 8;
 	for (int i = 0; i < 4; i++)
@@ -296,9 +298,9 @@ static void transfer(int fd, int e, int f, int x, int y, int z, int x1, int y1, 
 		.tx_buf = (unsigned long)tx,
 		.rx_buf = (unsigned long)rx,
 		.len = ARRAY_SIZE(tx),
-		.delay_usecs = delay,
 		.speed_hz = speed,
-		.bits_per_word = bits,
+		.delay_usecs = delay,
+		.bits_per_word = bits
 	};
 
 	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
