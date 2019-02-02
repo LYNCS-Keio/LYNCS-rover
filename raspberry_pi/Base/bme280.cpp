@@ -70,9 +70,6 @@ double TIME;
 double TIME2;
 double TIME1;
 
-int test = Csearch();
-
-
 static void pabort(const char *s)
 {
 	perror(s);
@@ -250,26 +247,29 @@ float getAltitude(float pressure) {
   return 44330.0 * (1.0 - pow(pressure / MEAN_SEA_LEVEL_PRESSURE, 0.190294957));
 }
 
-void ByteTranslation(unsigned char x_separated[4],int x)
+void ByteTranslation(unsigned char x_separated[5],int x)
 {
 	const unsigned int char_size = 8;
+	unsigned int hash;
 	for (int i = 0; i < 4; i++)
 	{
 		x_separated[i] = ((x >> char_size * i) & 0xFF);
+		hash += x_separated[i];
 	}
+	x_separated[4] = (unsigned char)(hash % 256);
 }
 
 static void transfer(int fd, int e, int f, int x, int y, int z, int x1, int y1, int z1, unsigned char bob, unsigned char coc)
 {
 	int ret;
-	unsigned char c[4];
-	unsigned char d[4];
-	unsigned char xx2[4];
-	unsigned char yy2[4];
-	unsigned char zz2[4];
-	unsigned char xxx2[4];
-	unsigned char yyy2[4];
-	unsigned char zzz2[4];
+	unsigned char c[5];
+	unsigned char d[5];
+	unsigned char xx2[5];
+	unsigned char yy2[5];
+	unsigned char zz2[5];
+	unsigned char xxx2[5];
+	unsigned char yyy2[5];
+	unsigned char zzz2[5];
 
 	ByteTranslation(c, e);
 	ByteTranslation(d, f);
@@ -282,14 +282,14 @@ static void transfer(int fd, int e, int f, int x, int y, int z, int x1, int y1, 
 
 	uint8_t tx[] = {
 		c[0], c[1], c[2], c[3],
-		d[0], d[1], d[2], d[3],
+		/*d[0], d[1], d[2], d[3],
 		xx2[0], xx2[1], xx2[2], xx2[3],
 		yy2[0], yy2[1], yy2[2], yy2[3],
 		zz2[0], zz2[1], zz2[2], zz2[3],
 		xxx2[0], xxx2[1], xxx2[2], xxx2[3],
 		yyy2[0], yy2[1], yyy2[2], yyy2[3],
 		zzz2[0], zzz2[1], zzz2[2], zzz2[3],
-		bob, coc,
+		bob, coc,*/
 		0x0A};
 	uint8_t rx[ARRAY_SIZE(tx)] = {
 		0,

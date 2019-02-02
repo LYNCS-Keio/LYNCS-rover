@@ -15,7 +15,7 @@
 using namespace std;
 using namespace cv;
 
-int Csearch(unsigned char R,unsigned char G, unsigned char B,double coordinate[2]){
+int main(void){
   VideoCapture cap(0);
   cv::Mat inputdata;
 
