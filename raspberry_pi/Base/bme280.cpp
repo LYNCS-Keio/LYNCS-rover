@@ -259,37 +259,15 @@ void ByteTranslation(unsigned char x_separated[5],int x)
 	x_separated[4] = (unsigned char)(hash % 256);
 }
 
-static void transfer(int fd, int e, int f, int x, int y, int z, int x1, int y1, int z1, unsigned char bob, unsigned char coc)
+static void transfer(int fd, int angle, unsigned char order)
 {
 	int ret;
-	unsigned char c[5];
-	unsigned char d[5];
-	unsigned char xx2[5];
-	unsigned char yy2[5];
-	unsigned char zz2[5];
-	unsigned char xxx2[5];
-	unsigned char yyy2[5];
-	unsigned char zzz2[5];
-
-	ByteTranslation(c, e);
-	ByteTranslation(d, f);
-	ByteTranslation(xx2, x);
-	ByteTranslation(yy2, y);
-	ByteTranslation(zz2, z);
-	ByteTranslation(xxx2, x1);
-	ByteTranslation(yyy2, y1);
-	ByteTranslation(zzz2, z1);
+	unsigned char angle_transe[5];
+	ByteTranslation(angle_transe, angle);
 
 	uint8_t tx[] = {
-		c[0], c[1], c[2], c[3],
-		/*d[0], d[1], d[2], d[3],
-		xx2[0], xx2[1], xx2[2], xx2[3],
-		yy2[0], yy2[1], yy2[2], yy2[3],
-		zz2[0], zz2[1], zz2[2], zz2[3],
-		xxx2[0], xxx2[1], xxx2[2], xxx2[3],
-		yyy2[0], yy2[1], yyy2[2], yyy2[3],
-		zzz2[0], zzz2[1], zzz2[2], zzz2[3],
-		bob, coc,*/
+		angle_transe[0], angle_transe[1], angle_transe[2], angle_transe[3], angle_transe[3],
+		order,order,
 		0x0A};
 	uint8_t rx[ARRAY_SIZE(tx)] = {
 		0,
@@ -306,31 +284,20 @@ static void transfer(int fd, int e, int f, int x, int y, int z, int x1, int y1, 
 	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
 	if (ret < 1)
 		pabort("can't send spi message");
-
-    /*
-	for (ret = 0; ret < ARRAY_SIZE(tx); ret++) {
-		if (!(ret % 6))
-			puts("");
-		printf("%.2X ", rx[ret]);
-	}
-	puts("");
-    */
 }
-void trns(int j1,int j2,int j3,int j4,int j5,int j6,unsigned char s1,unsigned char s2)
+
+
+void trns(int angle, unsigned char order)
 {
-	int ret = 0;
-	int fd;
-
-
-
-	fd = open(device, O_RDWR);
-	if (fd < 0)
+	int fd = open(device, O_RDWR);
+	if (fd < 0){
 		pabort("can't open device");
+	}
 
 	/*
 	 * spi mode
 	 */
-	ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
+	int ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
 	if (ret == -1)
 		pabort("can't set spi mode");
 
@@ -362,14 +329,7 @@ void trns(int j1,int j2,int j3,int j4,int j5,int j6,unsigned char s1,unsigned ch
 
     geta();
 
-
-
-	transfer(fd,j1,j2,j3,j4,j5,j6,v,v,s1,s2);
-  //	usleep(100000); //上も変えよう
-
-
+	transfer(fd,angle, order);
 
 	close(fd);
-
-
 }
