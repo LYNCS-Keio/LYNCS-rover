@@ -1,47 +1,4 @@
-/***************************************************************************
-Modified BSD License
-====================
-Copyright © 2016, Andrei Vainik
-All rights reserved.
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-3. Neither the name of the organization nor the
-   names of its contributors may be used to endorse or promote products
-   derived from this software without specific prior written permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-This piece of code was combined from several sources
-https://github.com/adafruit/Adafruit_BME280_Library
-https://cdn-shop.adafruit.com/datasheets/BST-BME280_DS001-10.pdf
-https://projects.drogon.net/raspberry-pi/wiringpi/i2c-library/
-Compensation functions and altitude function originally from:
-https://github.com/adafruit/Adafruit_BME280_Library/blob/master/Adafruit_BME280.cpp
-***************************************************************************
-  This is a library for the BME280 humidity, temperature & pressure sensor
-  Designed specifically to work with the Adafruit BME280 Breakout
-  ----> http://www.adafruit.com/products/2650
-  These sensors use I2C or SPI to communicate, 2 or 4 pins are required
-  to interface.
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit andopen-source hardware by purchasing products
-  from Adafruit!
-  Written by Limor Fried & Kevin Townsend for Adafruit Industries.
-  BSD license, all text above must be included in any redistribution
- ***************************************************************************
-****************************************************************************/
+#include <pybind11/pybind11.h>
 
 #include <stdio.h>
 #include<stdint.h>
@@ -59,9 +16,12 @@ https://github.com/adafruit/Adafruit_BME280_Library/blob/master/Adafruit_BME280.
 #include <linux/spi/spidev.h>
 #include <time.h>
 #include "bme280.h"
-#include "Csearch.cpp"
+#include "Csearch.h"
+#include "CalculateCsearch.h"
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+
+void readCalibrationData(int fd, bme280_calib_data *data) ;
 
 int v;
 double a1;
@@ -225,7 +185,6 @@ void getRawData(int fd, bme280_raw_data *raw) {
   raw->temperature = (raw->temperature | raw->tmsb) << 8;
   raw->temperature = (raw->temperature | raw->tlsb) << 8;
   raw->temperature = (raw->temperature | raw->txsb) >> 4;
-
   raw->pressure = 0;
   raw->pressure = (raw->pressure | raw->pmsb) << 8;
   raw->pressure = (raw->pressure | raw->plsb) << 8;
@@ -250,7 +209,7 @@ float getAltitude(float pressure) {
 void ByteTranslation(unsigned char x_separated[5],int x)
 {
 	const unsigned int char_size = 8;
-	unsigned int hash;
+	unsigned int hash = 0;
 	for (int i = 0; i < 4; i++)
 	{
 		x_separated[i] = ((x >> char_size * i) & 0xFF);
@@ -332,4 +291,59 @@ void trns(int angle, unsigned char order)
 	transfer(fd,angle, order);
 
 	close(fd);
+}
+
+void Csearch1()
+{
+	char judgei;
+	char k = 0;
+	double xy[2];
+
+	while (k<4) {
+		judgei=Csearch(80,40,80,40,xy);
+		if(judgei==2&&judgei==3){
+			trns(0,1);
+
+			break;
+		}
+		if(judgei==2){
+			break;
+		}
+
+		k++;
+	}
+
+}
+
+void Csearch2()
+{
+	char judgei;
+	char k = 0;
+	double answer;
+	double xy[2];
+
+	while (k<4) {
+		judgei=Csearch(10,0,180,140,xy);
+		if(judgei==2){
+			answer=ConvertCoordinateToAngle(xy)*1000;
+			trns((int)answer,4);
+			break;
+		}
+		if(judgei==0){
+			trns(0,2);
+			break;
+		}
+		if(judgei==3){
+			trns(0,3);
+			break;
+		}
+
+		k++;
+	}
+
+}
+
+PYBIND11_MODULE(bme280, m) {
+    m.doc() = "pybind11 example plugin";
+    m.def("trns", &trns, "A function which transmits values to Arduino micro");
 }
