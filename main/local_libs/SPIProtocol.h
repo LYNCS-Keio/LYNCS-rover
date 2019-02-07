@@ -26,9 +26,9 @@ bool SPIRestoreInt(const unsigned char* translated, int &restored){
 	}
 }
 
-bool SPIRestoreChar(const unsigned char* translated,unsigned char &restored){
+bool SPIRestoreChar(const unsigned char* translated,char &restored){
 	if (translated[0] == translated[1]) {
-		restored = translated[0];
+		restored = *(char*)(&translated[0]);
 		return true;
 	}else{
 		return false;
