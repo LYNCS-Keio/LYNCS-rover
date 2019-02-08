@@ -33,8 +33,8 @@ int Csearch(int H_MAX1, int H_MIN1, int H_MAX2, int H_MIN2, double coordinate[2]
 	}
 
 	//imshow("result",inputdata );
-	imwrite("work1.jpg", inputdata);
-	waitKey(1000);
+	//imwrite("work1.jpg", inputdata);
+	//waitKey(1000);
 
 	if (inputdata.empty())
 	{
@@ -68,10 +68,10 @@ int Csearch(int H_MAX1, int H_MIN1, int H_MAX2, int H_MIN2, double coordinate[2]
 	Mat element8 = (Mat_<uchar>(3, 3) << 1, 1, 1, 1, 1, 1, 1, 1, 1);
 	morphologyEx(mask, mask, MORPH_OPEN, element8, Point(-1, -1), 1);
 	morphologyEx(mask, mask, MORPH_CLOSE, element8, Point(-1, -1), 1);
-	imwrite("work2.jpg", mask);
+	//imwrite("work2.jpg", mask);
 	//imshow("mask", mask);
 
-	waitKey(5000);
+	//waitKey(5000);
 
 	vector<vector<Point>> contours;
 	findContours(mask, contours, RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
@@ -108,7 +108,7 @@ int Csearch(int H_MAX1, int H_MIN1, int H_MAX2, int H_MIN2, double coordinate[2]
 
 	circle(inputdata, cv::Point(coordinate[0], coordinate[1]), 30, Scalar(0, 255, 0), 2, 4);
 	//imshow("result", inputdata);
-	imwrite("work3.jpg", inputdata);
-	waitKey(5000);
+	//imwrite("work3.jpg", inputdata);
+	//waitKey(5000);
 	return (1);
 }
