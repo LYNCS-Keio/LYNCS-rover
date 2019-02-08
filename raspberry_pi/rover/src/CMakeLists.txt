@@ -17,7 +17,6 @@ endif()
 add_subdirectory(pybind11)
 add_library(${PROJECT_NAME}   MODULE
 	rover_lib.cpp
-	SPIOpen.cpp
 	CalculateCsearch.cpp
 	ArduinoControl.cpp
 	TransferValuesToArduino.cpp
