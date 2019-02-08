@@ -36,11 +36,6 @@ int Csearch(int H_MAX1, int H_MIN1, int H_MAX2, int H_MIN2, double coordinate[2]
 	//imwrite("work1.jpg", inputdata);
 	//waitKey(1000);
 
-	if (inputdata.empty())
-	{
-		cout << "end0" << endl;
-		return (1);
-	}
 
 	Mat mask1, mask2, hsv_image;
 	cvtColor(inputdata, hsv_image, COLOR_BGR2HSV, 3);
@@ -64,6 +59,14 @@ int Csearch(int H_MAX1, int H_MIN1, int H_MAX2, int H_MIN2, double coordinate[2]
 			}
 		}
 	}
+	if (Redsum < 1500)
+	{
+		return (0);
+	}
+	if (Redsum > 51200)
+	{
+		return (3);
+	}
 
 	Mat element8 = (Mat_<uchar>(3, 3) << 1, 1, 1, 1, 1, 1, 1, 1, 1);
 	morphologyEx(mask, mask, MORPH_OPEN, element8, Point(-1, -1), 1);
@@ -82,7 +85,7 @@ int Csearch(int H_MAX1, int H_MIN1, int H_MAX2, int H_MIN2, double coordinate[2]
 	{
 		cout << "none" << endl;
 		cout << "none" << endl;
-		return (1);
+		return (0);
 	}
 	for (int i = 0; i < contours.size(); i++)
 	{
@@ -104,11 +107,11 @@ int Csearch(int H_MAX1, int H_MIN1, int H_MAX2, int H_MIN2, double coordinate[2]
 	}
 	coordinate[0] = coordinate[0] / pointcount;
 	coordinate[1] = coordinate[1] / pointcount;
-	cout << Redsum << endl;
+	//cout << Redsum << endl;
 
-	circle(inputdata, cv::Point(coordinate[0], coordinate[1]), 30, Scalar(0, 255, 0), 2, 4);
+	//circle(inputdata, cv::Point(coordinate[0], coordinate[1]), 30, Scalar(0, 255, 0), 2, 4);
 	//imshow("result", inputdata);
 	//imwrite("work3.jpg", inputdata);
 	//waitKey(5000);
-	return (1);
+	return (2);
 }
