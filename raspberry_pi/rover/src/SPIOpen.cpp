@@ -34,32 +34,41 @@ int SPIOpen()
 	 * spi mode
 	 */
 	int ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
-	if (ret == -1)
+	if (ret == -1){
 		pabort("can't set spi mode");
+	}
+		
 
 	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
-	if (ret == -1)
+	if (ret == -1){
 		pabort("can't get spi mode");
+	}
 
 	/*
 	 * bits per word
 	 */
 	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
-	if (ret == -1)
+	if (ret == -1){
 		pabort("can't set bits per word");
+	}
 
 	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
-	if (ret == -1)
+	if (ret == -1){
 		pabort("can't get bits per word");
+	}
 
 	/*
 	 * max speed hz
 	 */
 	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
-	if (ret == -1)
+	if (ret == -1){
 		pabort("can't set max speed hz");
+	}
 
 	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
-	if (ret == -1)
+	if (ret == -1){
 		pabort("can't get max speed hz");
+	}
+	
+	return fd;
 }
