@@ -140,7 +140,7 @@ void loop()
 		buf[pos] = 0;
 		SPIRestoreInt(&buf[0], spi1);
 		SPIRestoreUnsignedChar(&buf[5], cspi1);
-		SetPropotionGain(spi1/1000);
+		vkz_pid.SetPropotionGain(spi1/1000);
 		pos = 0;
 		process_it = false;
 	}
