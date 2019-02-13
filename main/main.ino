@@ -140,6 +140,7 @@ void loop()
 		buf[pos] = 0;
 		SPIRestoreInt(&buf[0], spi1);
 		SPIRestoreUnsignedChar(&buf[5], cspi1);
+		SetPropotionGain(spi1/1000);
 		pos = 0;
 		process_it = false;
 	}
@@ -240,11 +241,11 @@ void loop()
 		// do something
 		break;
 	}
-	vkz_pid.InputPID(gyv[2],0,1);
+	vkz_pid.InputPID(gy[2],0,1);
 	kv_a_pid.InputPID(vn - v00,0,1);
 
-	vkz += vkz_pid.GetPID();;
-	rover_motor.RoverPower(0.5, 0);
+	vkz = vkz_pid.GetPID();;
+	rover_motor.RoverPower(0.5, vkz);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
 	countx++;
