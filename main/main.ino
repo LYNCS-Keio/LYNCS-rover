@@ -223,7 +223,7 @@ void loop()
 	gzzz = gy[0];
 	gy[0] += gztank;
 
-	switch (spi1)
+	switch (cspi1)
 	{
 	case 0: //GPS進行
 		rover_motor.RoverPower(0.5, 0);
@@ -244,7 +244,7 @@ void loop()
 	vkz_pid.InputPID(gy[2],0,1);
 	kv_a_pid.InputPID(vn - v00,0,1);
 
-	vkz = vkz_pid.GetPID();;
+	vkz = vkz_pid.GetPID();
 	rover_motor.RoverPower(0.5, vkz);
 	Serial.println(vkz);
 	//  Serial.println(gyv[2]);
