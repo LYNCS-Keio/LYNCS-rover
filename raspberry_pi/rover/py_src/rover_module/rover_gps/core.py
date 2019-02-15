@@ -15,6 +15,7 @@ def gps_reader(sentence):
     longi = float(msg.longitude)
     return [lat, longi]
 
+
 def gps_measurement():
     s = serial.Serial('/dev/serial0', 9600, timeout=10)
     s.readline()
@@ -37,3 +38,9 @@ def convert_lat_long_to_r_theta(lat0, long0, lat1, long1):
     theta = atan2(sin(deltax), (cos(y0) * tan(y1) - sin(y0) * cos(deltax)))
     distance = r * acos(sin(y0) * sin(y1) + cos(y0) * cos(y1) * cos(deltax))
     return [distance, theta]
+
+
+def r_theta_to_goal(goal_lat, goal_long):
+    current_coordinate = gps_measurement()
+    return convert_lat_long_to_r_theta(
+        current_coordinate[0], current_coordinate[1], goal_lat, goal_long)
