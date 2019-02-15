@@ -20,7 +20,7 @@ class PIDController
 	[[deprecated("Propotion gain must not be changed.")]] void SetPropotionGain(double propotion_gain) {
 		kProportionGain_ = propotion_gain;
 	}
-		[[deprecated("Integral gain must not be changed.")]] void SetIntegralGain(double integral_gain)
+	[[deprecated("Integral gain must not be changed.")]] void SetIntegralGain(double integral_gain)
 	{
 		kIntegralGain_ = integral_gain;
 	}
