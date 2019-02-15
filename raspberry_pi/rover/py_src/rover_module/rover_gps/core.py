@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
-import micropyGPS
+import pynmea2
 import serial
 from math import radians
-from math import degrees
 from math import atan2
 from math import acos
 from math import sin
 from math import cos
+from math import tan
 
 
-def gps_reader(sentence): 
-    my_gps = micropyGPS.MicropyGPS(9, 'dd')
-    for x in sentence:
-        my_gps.update(x)
-    return [my_gps.latitude[0], my_gps.longitude[0]]
+def gps_reader(sentence):
+    msg = pynmea2.parse(sentence)
+    lat = float(msg.latitude)
+    longi = float(msg.longitude)
+    return [lat, longi]
 
 def gps_measurement():
     s = serial.Serial('/dev/serial0', 9600, timeout=10)
