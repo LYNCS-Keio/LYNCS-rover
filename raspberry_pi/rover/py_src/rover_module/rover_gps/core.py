@@ -18,10 +18,12 @@ def gps_reader(sentence):
 
 def gps_measurement():
     s = serial.Serial('/dev/serial0', 9600, timeout=10)
-    s.readline()
-    sentence = s.readline().decode('utf-8')  # GPSデーターを読み、文字列に変換する
-    if sentence[0] == '$':
-        lat_and_long = gps_reader(sentence)
+    while True:
+        sentence = s.readline().decode('utf-8')  # GPSデーターを読み、文字列に変換する
+        if sentence[0] == '$' and ('GGA' in sentence or 'RMC' in sentence
+                                   or 'GLL' in sentence):
+            lat_and_long = gps_reader(sentence)
+            break
     return [lat_and_long[0], lat_and_long[1]]
 
 
