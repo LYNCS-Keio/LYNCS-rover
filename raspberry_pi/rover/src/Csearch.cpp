@@ -14,16 +14,18 @@ using namespace cv;
 
 Csearch::Csearch(/* args */)
 {
+	cap_ = new VideoCapture(0);
+	inputdata_ = new Mat;
 }
 
 Csearch::~Csearch()
 {
+	delete cap_;
+	delete inputdata_ ;
 }
 
 int Csearch::Init()
-{
-	cap_ = new VideoCapture(0);
-	inputdata_ = new Mat;
+{	
 	if (!cap_->isOpened())
 	{
 		return -1;

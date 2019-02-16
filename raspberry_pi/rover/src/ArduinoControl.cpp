@@ -2,6 +2,10 @@
 #include "../include/CalculateCsearch.h"
 #include "../include/TransferValuesToArduino.h"
 #include "../include/ArduinoControl.h"
+#include <iostream>
+using namespace std;
+
+int count = 0;
 
 ArduinoControl::ArduinoControl(/* args */)
 {
@@ -9,6 +13,10 @@ ArduinoControl::ArduinoControl(/* args */)
 
 ArduinoControl::~ArduinoControl()
 {
+}
+
+int ArduinoControl::Init(){
+	return csearch_.Init();
 }
 
 void ArduinoControl::Csearch1()
@@ -20,10 +28,10 @@ void ArduinoControl::Csearch1()
 	while (k < 4)
 	{
 		judgei = csearch_.Search(80, 40, 80, 40, xy);
-		if (judgei == 2 && judgei == 3)
+		if (judgei == 2 or judgei == 3)
 		{
 			TransferValuesToArduino(0, 1);
-
+			cout << count++ <<endl;
 			break;
 		}
 		if (judgei == 2)
@@ -49,6 +57,7 @@ void ArduinoControl::Csearch2()
 		{
 			answer = ConvertCoordinateToAngle(xy) * 1000;
 			TransferValuesToArduino((int)answer, 4);
+			cout << answer << endl;
 			break;
 		}
 		if (judgei == 0)

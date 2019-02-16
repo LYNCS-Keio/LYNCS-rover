@@ -7,6 +7,7 @@ private:
 public:
 	ArduinoControl(/* args */);
 	~ArduinoControl();
+	int Init();
 	void Csearch1();
 	void Csearch2();
 };
