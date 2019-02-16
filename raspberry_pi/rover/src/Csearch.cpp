@@ -30,6 +30,7 @@ int Csearch::Init()
 	}
 	cap_->set(3, 320);
 	cap_->set(4, 240);
+	return 1;
 }
 
 int Csearch::Search(int H_MAX1, int H_MIN1, int H_MAX2, int H_MIN2, double coordinate[2])
