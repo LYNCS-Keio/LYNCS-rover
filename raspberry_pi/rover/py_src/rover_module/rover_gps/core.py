@@ -20,7 +20,6 @@ def velocity_reader(sentence):
     msg = pynmea2.parse(sentence)
     speed = 0
     course = 0
-    print(sentence)
     if msg.spd_over_grnd != None:
         speed = float(msg.spd_over_grnd)
     if msg.true_course != None:
