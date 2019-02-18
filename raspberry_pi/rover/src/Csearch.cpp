@@ -12,7 +12,7 @@ using namespace std;
 using namespace cv;
 
 
-Csearch::Csearch(/* args */)
+Csearch::Csearch()
 {
 	cap_ = new VideoCapture(0);
 	inputdata_ = new Mat;
