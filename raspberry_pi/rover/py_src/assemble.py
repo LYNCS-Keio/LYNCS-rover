@@ -13,4 +13,4 @@ while True:
         cs.Csearch2()
     else:
         lyncs_rover.TransferValuesToArduino((int)(r_theata[0]/1000), 0)
-    sleep(2)
+    sleep(1)
