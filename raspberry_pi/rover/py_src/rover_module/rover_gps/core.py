@@ -10,6 +10,14 @@ from math import tan
 
 
 def lat_long_reader(sentence):
+    """
+    sentenceから緯度経度を取得する。
+
+    Returns
+    -------
+    list : list of float or None
+        緯度と経度のリスト。sentenceにこれらの情報が含まれていなかった場合はNoneとなる。
+    """
     msg = pynmea2.parse(sentence)
     lat = None
     longi = None
@@ -21,6 +29,18 @@ def lat_long_reader(sentence):
 
 
 def velocity_reader(sentence):
+    """
+    sentenceから速度を取得する。
+
+    Returns
+    -------
+    list : list of float or None
+        speedとcourseのリスト。sentenceにこれらの情報が含まれていなかった場合はNoneとなる。
+    
+    Notes
+    -----
+    speedの単位はknot, courseの単位は度である。
+    """
     msg = pynmea2.parse(sentence)
     speed = None
     course = None
@@ -32,6 +52,14 @@ def velocity_reader(sentence):
 
 
 def lat_long_measurement():
+    """
+    GPSを用いて緯度経度を取得する。
+
+    Returns
+    -------
+    list : list of float or None
+        緯度と経度のリスト。これらの情報が取得できなかった場合は取得できなかったものがNoneとなる。
+    """
     s = serial.Serial('/dev/serial0', 9600, timeout=10)
     while True:
         sentence = s.readline().decode('utf-8')  # GPSデーターを読み、文字列に変換する
@@ -41,7 +69,20 @@ def lat_long_measurement():
             break
     return [lat_and_long[0], lat_and_long[1]]
 
+
 def velocity_measurement():
+    """
+    GPSから速度を取得する。
+
+    Returns
+    -------
+    list : list of float or None
+        speedとcourseのリスト。これらの情報が取得できなかった場合は取得できなかったものがNoneとなる。
+    
+    Notes
+    -----
+    speedの単位はknot, courseの単位は度である。
+    """
     s = serial.Serial('/dev/serial0', 9600, timeout=10)
     while True:
         sentence = s.readline().decode('utf-8')  # GPSデーターを読み、文字列に変換する
@@ -54,6 +95,28 @@ r = 6378.137  # km
 
 
 def convert_lat_long_to_r_theta(lat0, long0, lat1, long1):
+    """
+    点0から点1への距離と方位角を計算する。
+    Parameters
+    -------
+    lat0 : float
+        点0の緯度
+    long0 : float
+        点0の経度
+    lat1 : 
+        点1の緯度
+    long1 : 
+        点1の経度
+
+    Returns
+    -------
+    list : list of float
+        距離と方位角のリスト。
+    
+    Notes
+    -----
+    距離の単位はkm, 方位角の単位はradである。
+    """
     y0 = radians(lat0)
     x0 = radians(long0)
     y1 = radians(lat1)
@@ -66,6 +129,28 @@ def convert_lat_long_to_r_theta(lat0, long0, lat1, long1):
 
 
 def r_theta_to_goal(goal_lat, goal_long):
+    """
+    GPSから目的地までの距離と方位角を取得する。
+
+    Parameters
+    -------
+    goal_lat : float
+        ゴールの緯度
+    goal_long : 
+        ゴールの経度
+
+    Returns
+    -------
+    list : list of float
+        距離と方位角のリスト。取得できなかった場合はNoneを返す。 
+    
+    Notes
+    -----
+    距離の単位はkm, 方位角の単位はradである。
+    """
     current_coordinate = lat_long_measurement()
-    return convert_lat_long_to_r_theta(
-        current_coordinate[0], current_coordinate[1], goal_lat, goal_long)
+    if current_coordinate[0] == None or current_coordinate[1] == None:
+        return None
+    else:
+        return convert_lat_long_to_r_theta(
+            current_coordinate[0], current_coordinate[1], goal_lat, goal_long)
