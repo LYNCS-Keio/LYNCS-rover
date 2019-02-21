@@ -11,15 +11,19 @@ from math import tan
 
 def lat_long_reader(sentence):
     msg = pynmea2.parse(sentence)
-    lat = float(msg.latitude)
-    longi = float(msg.longitude)
+    lat = None
+    longi = None
+    if msg.latitude != None:
+        lat = float(msg.latitude)
+    if msg.longitude != None:
+        longi = float(msg.longitude)
     return [lat, longi]
 
 
 def velocity_reader(sentence):
     msg = pynmea2.parse(sentence)
-    speed = 0
-    course = 0
+    speed = None
+    course = None
     if msg.spd_over_grnd != None:
         speed = float(msg.spd_over_grnd)
     if msg.true_course != None:
