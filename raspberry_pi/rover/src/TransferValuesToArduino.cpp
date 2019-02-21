@@ -1,8 +1,8 @@
+#include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <stdint.h>
 #include <unistd.h>
-#include <errno.h>
 #include <getopt.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -12,12 +12,7 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-
-static void pabort(const char *s)
-{
-	perror(s);
-	abort();
-}
+using namespace std;
 
 static const char *device = "/dev/spidev1.2";
 static uint8_t mode;
@@ -37,7 +32,7 @@ void ByteTranslation(unsigned char x_separated[5], int x)
 	x_separated[4] = (unsigned char)(hash % 256);
 }
 
-static void transfer(int fd, int angle, unsigned char order)
+int transfer(int fd, int angle, unsigned char order)
 {
 	int ret;
 	unsigned char angle_transe[5];
@@ -60,15 +55,19 @@ static void transfer(int fd, int angle, unsigned char order)
 
 	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
 	if (ret < 1)
-		pabort("can't send spi message");
+	{
+		cerr << "can't send spi message" << endl;
+		return ret;
+	}
 }
 
-void TransferValuesToArduino(int angle, unsigned char order)
+int OpenSPI()
 {
 	int fd = open(device, O_RDWR);
 	if (fd < 0)
 	{
-		pabort("can't open device");
+		cerr << "can't open device" << endl;
+		return -1;
 	}
 
 	/*
@@ -76,36 +75,66 @@ void TransferValuesToArduino(int angle, unsigned char order)
 	 */
 	int ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
 	if (ret == -1)
-		pabort("can't set spi mode");
+	{
+		cerr << "can't set spi mode" << endl;
+		return -1;
+	}
 
 	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
 	if (ret == -1)
-		pabort("can't get spi mode");
+	{
+		cerr << "can't get spi mode" << endl;
+		return -1;
+	}
 
 	/*
 	 * bits per word
 	 */
 	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
 	if (ret == -1)
-		pabort("can't set bits per word");
+	{
+		cerr << "can't set bits per word" << endl;
+		return -1;
+	}
 
 	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
 	if (ret == -1)
-		pabort("can't get bits per word");
+	{
+		cerr << "can't get bits per word" << endl;
+		return -1;
+	}
 
 	/*
 	 * max speed hz
 	 */
 	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
 	if (ret == -1)
-		pabort("can't set max speed hz");
+	{
+		cerr << "can't set max speed hz" << endl;
+		return -1;
+	}
 
 	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
 	if (ret == -1)
-		pabort("can't get max speed hz");
+	{
+		cerr << "can't get max speed hz" << endl;
+		return -1;
+	}
 
+	return fd;
+}
 
-	transfer(fd, angle, order);
+void TransferValuesToArduino(int angle, unsigned char order)
+{
+	int fd = OpenSPI();
+	if (fd < 0)
+	{
+		return;
+	}
+	else
+	{
+		transfer(fd, angle, order);
 
-	close(fd);
+		close(fd);
+	}
 }
