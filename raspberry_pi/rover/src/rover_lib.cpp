@@ -1,5 +1,4 @@
 #include <pybind11/pybind11.h>
-#include "../include/TransferValuesToArduino.h"
 #include "../include/ArduinoControl.h"
 
 namespace py = pybind11;
@@ -12,6 +11,7 @@ PYBIND11_MODULE(lyncs_rover, m)
 		.def("Init", &ArduinoControl::Init)
 		.def("Csearch1", &ArduinoControl::Csearch1)
 		.def("Csearch2", &ArduinoControl::Csearch2)
+		.def("Transfer", &ArduinoControl::Transfer)
 		.def("__repr__", [](const ArduinoControl &p) {
 			return "ArduinoControl()";
 		});

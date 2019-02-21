@@ -70,6 +70,8 @@ int TransferValuesToArduino::Init()
 	{
 		cerr << "can't open device" << endl;
 		return -1;
+	}else{
+		cout << "successfully opend the device" << endl;
 	}
 
 	/*
@@ -125,5 +127,3 @@ int TransferValuesToArduino::Init()
 
 	return fd_;
 }
-
-
