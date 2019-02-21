@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
-#include <stdint.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <fcntl.h>
@@ -13,13 +12,6 @@
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 using namespace std;
-
-static const char *device = "/dev/spidev1.2";
-static uint8_t mode;
-static uint8_t bits = 8;
-static uint32_t speed = 500000;
-static uint16_t delay;
-
 void ByteTranslation(unsigned char x_separated[5], int x)
 {
 	const unsigned int char_size = 8;
@@ -32,14 +24,24 @@ void ByteTranslation(unsigned char x_separated[5], int x)
 	x_separated[4] = (unsigned char)(hash % 256);
 }
 
-int transfer(int fd, int angle, unsigned char order)
+TransferValuesToArduino::TransferValuesToArduino()
+	: bits(8),
+	  speed(500000)
+{
+}
+
+TransferValuesToArduino::~TransferValuesToArduino()
+{
+	close(fd_);
+}
+int TransferValuesToArduino::Transfer(int angle, unsigned char order)
 {
 	int ret;
-	unsigned char angle_transe[5];
-	ByteTranslation(angle_transe, angle);
+	unsigned char angle_trans[5];
+	ByteTranslation(angle_trans, angle);
 
 	uint8_t tx[] = {
-		angle_transe[0], angle_transe[1], angle_transe[2], angle_transe[3], angle_transe[4],
+		angle_trans[0], angle_trans[1], angle_trans[2], angle_trans[3], angle_trans[4],
 		order, order,
 		0x0A};
 	uint8_t rx[ARRAY_SIZE(tx)] = {
@@ -53,18 +55,18 @@ int transfer(int fd, int angle, unsigned char order)
 		.delay_usecs = delay,
 		.bits_per_word = bits};
 
-	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
+	ret = ioctl(fd_, SPI_IOC_MESSAGE(1), &tr);
 	if (ret < 1)
 	{
 		cerr << "can't send spi message" << endl;
 		return ret;
 	}
+	return 0;
 }
-
-int OpenSPI()
+int TransferValuesToArduino::Init()
 {
-	int fd = open(device, O_RDWR);
-	if (fd < 0)
+	fd_ = open("/dev/spidev1.2", O_RDWR);
+	if (fd_ < 0)
 	{
 		cerr << "can't open device" << endl;
 		return -1;
@@ -73,14 +75,14 @@ int OpenSPI()
 	/*
 	 * spi mode
 	 */
-	int ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
+	int ret = ioctl(fd_, SPI_IOC_WR_MODE, &mode);
 	if (ret == -1)
 	{
 		cerr << "can't set spi mode" << endl;
 		return -1;
 	}
 
-	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
+	ret = ioctl(fd_, SPI_IOC_RD_MODE, &mode);
 	if (ret == -1)
 	{
 		cerr << "can't get spi mode" << endl;
@@ -90,14 +92,14 @@ int OpenSPI()
 	/*
 	 * bits per word
 	 */
-	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
+	ret = ioctl(fd_, SPI_IOC_WR_BITS_PER_WORD, &bits);
 	if (ret == -1)
 	{
 		cerr << "can't set bits per word" << endl;
 		return -1;
 	}
 
-	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
+	ret = ioctl(fd_, SPI_IOC_RD_BITS_PER_WORD, &bits);
 	if (ret == -1)
 	{
 		cerr << "can't get bits per word" << endl;
@@ -107,34 +109,21 @@ int OpenSPI()
 	/*
 	 * max speed hz
 	 */
-	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
+	ret = ioctl(fd_, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
 	if (ret == -1)
 	{
 		cerr << "can't set max speed hz" << endl;
 		return -1;
 	}
 
-	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
+	ret = ioctl(fd_, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
 	if (ret == -1)
 	{
 		cerr << "can't get max speed hz" << endl;
 		return -1;
 	}
 
-	return fd;
+	return fd_;
 }
 
-void TransferValuesToArduino(int angle, unsigned char order)
-{
-	int fd = OpenSPI();
-	if (fd < 0)
-	{
-		return;
-	}
-	else
-	{
-		transfer(fd, angle, order);
 
-		close(fd);
-	}
-}
