@@ -19,7 +19,7 @@ int ArduinoControl::Init(){
 	return csearch_.Init();
 }
 
-void ArduinoControl::Csearch1()
+int ArduinoControl::Csearch1()
 {
 	int judgei;
 	char k = 0;
@@ -30,12 +30,13 @@ void ArduinoControl::Csearch1()
 		judgei = csearch_.Search(80, 40, 80, 40, xy);
 		if (judgei == 2 or judgei == 3)
 		{
-			TransferValuesToArduino(0, 1);
+			TransferValuesToArduino(0, 0);
 			cout << count++ <<endl;
 			break;
 		}
-		if (judgei == 2)
+		if (judgei == 0)
 		{
+			return 1;
 			break;
 		}
 

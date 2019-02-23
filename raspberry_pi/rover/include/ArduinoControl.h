@@ -8,6 +8,6 @@ public:
 	ArduinoControl(/* args */);
 	~ArduinoControl();
 	int Init();
-	void Csearch1();
+	int Csearch1();
 	void Csearch2();
 };
