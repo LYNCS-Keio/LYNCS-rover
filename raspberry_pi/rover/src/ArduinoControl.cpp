@@ -51,6 +51,7 @@ void ArduinoControl::LogOutput(string str)
 int ArduinoControl::Transfer(int angle, unsigned char order)
 {
 	transfer_.Transfer(angle, order);
+	stringstream log_result;
 	log_result  << "angle::"<< angle << ",order::" << int(order) << "";
 	LogOutput(log_result.str());
 	cout << log_result.str() << endl;
@@ -62,6 +63,7 @@ int ArduinoControl::Csearch1()
 	for (int i = 0; i < 4; i++)
 	{
 		judgei = csearch_.Search(118, 117, 122, 119, xy);
+		stringstream s;
 		switch (judgei)
 		{
 		case 0:
@@ -69,6 +71,8 @@ int ArduinoControl::Csearch1()
 			break;
 		case 2:
 		case 3:
+			s << "purble object detected. going backward. coordinate..." << " " << "x::" << xy[0] << ",y::" << xy[1] << "";
+			LogOutput(s.str());
 			Transfer(0, 1);
 			return 0;
 			break;
@@ -87,16 +91,11 @@ int ArduinoControl::Csearch2()
 	double xy[2];
 	for (int i = 0; i < 4; i++)
 	{
+		stringstream s;
 		judgei = csearch_.Search(10, 0, 180, 140, xy);
-		std::stringstream s;
-		s << "red coordinate" << " " << "x::" << xy[0] << ",y::" << xy[1] << "";
-		LogOutput(s.str());
-		cout << str << endl;
 		switch (judgei)
 		{
 		case 0:
-			s << "purble object detected. coordinate..." << " " << "x::" << xy[0] << ",y::" << xy[1] << "";
-			LogOutput(s.str());
 			Transfer(0, 2);
 			return 0;
 			break;
@@ -108,6 +107,7 @@ int ArduinoControl::Csearch2()
 			return 0;
 			break;
 		case 3:
+			s << "red object detected. goal.";
 			Transfer(0, 3);
 			return 0;
 			break;
