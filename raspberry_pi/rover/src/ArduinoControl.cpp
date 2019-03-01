@@ -14,6 +14,7 @@ ArduinoControl::ArduinoControl(/* args */) : log_file_("rover.log")
 
 ArduinoControl::~ArduinoControl()
 {
+	log_file_.close();
 }
 
 int ArduinoControl::Init()
