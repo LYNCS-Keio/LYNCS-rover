@@ -34,24 +34,26 @@ int ArduinoControl::Init()
 
 void ArduinoControl::LogOutput(string str)
 {
-	log_file_ << str << endl;
+
+	time_t t = time(nullptr);
+	const tm *lt = localtime(&t);
+	stringstream s;
+	stringstream log_result;
+	s<< lt->tm_hour << "h";
+	s<< lt->tm_min << "m";
+	s<< lt->tm_sec << "s";
+	s << " " << str;
+	//result = "2015-5-19-11-30-21"
+	string result = s.str();
+	log_file_ << result << endl;
 }
 
 int ArduinoControl::Transfer(int angle, unsigned char order)
 {
 	transfer_.Transfer(angle, order);
-	time_t t = time(nullptr);
-	const tm *lt = localtime(&t);
-	std::stringstream s;
-	std::stringstream log_result;
-	s<< lt->tm_hour << "h";
-	s<< lt->tm_min << "m";
-	s<< lt->tm_sec << "s";
-	//result = "2015-5-19-11-30-21"
-	std::string result = s.str();
-	log_result << result << "/angle::"<< angle << ",order::" << int(order) << "";
+	log_result  << "angle::"<< angle << ",order::" << int(order) << "";
 	LogOutput(log_result.str());
-	cout << "angle" << angle << ",order::" << int(order) << "" << endl;
+	cout << log_result.str() << endl;
 }
 int ArduinoControl::Csearch1()
 {
@@ -86,13 +88,21 @@ int ArduinoControl::Csearch2()
 	for (int i = 0; i < 4; i++)
 	{
 		judgei = csearch_.Search(10, 0, 180, 140, xy);
+		std::stringstream s;
+		s << "red coordinate" << " " << "x::" << xy[0] << ",y::" << xy[1] << "";
+		LogOutput(s.str());
+		cout << str << endl;
 		switch (judgei)
 		{
 		case 0:
+			s << "purble object detected. coordinate..." << " " << "x::" << xy[0] << ",y::" << xy[1] << "";
+			LogOutput(s.str());
 			Transfer(0, 2);
 			return 0;
 			break;
 		case 2:
+			s << "red object detected. coordinate..." << " " << "x::" << xy[0] << ",y::" << xy[1] << "";
+			LogOutput(s.str());
 			answer = ConvertCoordinateToAngle(xy) * 1000;
 			Transfer((int)answer, 4);
 			return 0;
