@@ -41,15 +41,15 @@ int ArduinoControl::Csearch1()
 		judgei = csearch_.Search(118, 117, 122, 119, xy);
 		switch (judgei)
 		{
-			case 0:
-				return 1;
-				break;
-			case 2:
-			case 3:
-				transfer_.Transfer(0, 1);
-				break;
-			default:
-				break;
+		case 0:
+			return 1;
+			break;
+		case 2:
+		case 3:
+			transfer_.Transfer(0, 1);
+			break;
+		default:
+			break;
 		}
 	}
 	return 0;
