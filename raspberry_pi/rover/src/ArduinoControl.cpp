@@ -79,7 +79,7 @@ int ArduinoControl::Csearch1()
 	return 0;
 }
 
-void ArduinoControl::Csearch2()
+int ArduinoControl::Csearch2()
 {
 	int judgei;
 	char k = 0;
