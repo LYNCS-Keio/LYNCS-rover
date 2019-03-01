@@ -50,27 +50,25 @@ int ArduinoControl::Transfer(int angle, unsigned char order)
 int ArduinoControl::Csearch1()
 {
 	int judgei;
-	char k = 0;
 	double xy[2];
-
-	while (k < 4)
+	for (int i = 0; i < 4; i++)
 	{
 		judgei = csearch_.Search(118, 117, 122, 119, xy);
-		if (judgei == 2 or judgei == 3)
+		switch (judgei)
 		{
+		case 0:
+			return 1;
+			break;
+		case 2:
+		case 3:
 			Transfer(0, 1);
-                        break;
+			return 0;
+			break;
+		default:
 			break;
 		}
-		if (judgei == 0)
-		{
-			return 1;
-			break;
-			return 1;
-		}
-
-		k++;
 	}
+	return 0;
 }
 
 void ArduinoControl::Csearch2()
@@ -79,27 +77,27 @@ void ArduinoControl::Csearch2()
 	char k = 0;
 	double answer;
 	double xy[2];
-
-	while (k < 4)
+	for (int i = 0; i < 4; i++)
 	{
 		judgei = csearch_.Search(10, 0, 180, 140, xy);
-		if (judgei == 2)
+		switch (judgei)
 		{
+		case 0:
+			Transfer(0, 2);
+			return 0;
+			break;
+		case 2:
 			answer = ConvertCoordinateToAngle(xy) * 1000;
 			Transfer((int)answer, 4);
+			return 0;
 			break;
-		}
-		if (judgei == 0)
-		{
-			Transfer(0, 2);
-			break;
-		}
-		if (judgei == 3)
-		{
+		case 3:
 			Transfer(0, 3);
+			return 0;
+			break;
+		default:
 			break;
 		}
-
-		k++;
 	}
+	return 0;
 }
