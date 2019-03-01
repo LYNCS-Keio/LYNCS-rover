@@ -44,11 +44,9 @@ int ArduinoControl::Transfer(int angle, unsigned char order)
 	const tm *lt = localtime(&t);
 	std::stringstream s;
 	std::stringstream log_result;
-	s<< lt->tm_hour;
-	s<< "-";
-	s<< lt->tm_min;
-	s<< "-";
-	s<< lt->tm_sec;
+	s<< lt->tm_hour << "h";
+	s<< lt->tm_min << "m";
+	s<< lt->tm_sec << "s";
 	//result = "2015-5-19-11-30-21"
 	std::string result = s.str();
 	log_result << result << "/angle::"<< angle << ",order::" << int(order) << "";
