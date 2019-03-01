@@ -45,6 +45,7 @@ int ArduinoControl::Transfer(int angle, unsigned char order)
 	//result = "2015-5-19-11-30-21"
 	std::string result = s.str();
 	log_file_ << result << "/angle::"<< angle << ",order::" << int(order) << "" << endl;
+	cout << "angle" << angle << ",order::" << int(order) << "" << endl;
 }
 int ArduinoControl::Csearch1()
 {
@@ -58,7 +59,6 @@ int ArduinoControl::Csearch1()
 		if (judgei == 2 or judgei == 3)
 		{
 			Transfer(0, 1);
-			cout << "0" << " "<< "1" << endl;
                         break;
 			break;
 		}
@@ -87,19 +87,16 @@ void ArduinoControl::Csearch2()
 		{
 			answer = ConvertCoordinateToAngle(xy) * 1000;
 			Transfer((int)answer, 4);
-			cout << answer << " " << "4" <<  endl;
 			break;
 		}
 		if (judgei == 0)
 		{
 			Transfer(0, 2);
-			cout << "0" << " "<< "2" << endl;
 			break;
 		}
 		if (judgei == 3)
 		{
 			Transfer(0, 3);
-			cout << "0" << " "<< "3" << endl;
 			break;
 		}
 
