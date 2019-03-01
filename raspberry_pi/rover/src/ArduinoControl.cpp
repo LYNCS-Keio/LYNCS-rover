@@ -94,24 +94,19 @@ void ArduinoControl::Csearch2()
 		{
 			answer = ConvertCoordinateToAngle(xy) * 1000;
 			transfer_.Transfer((int)answer, 4);
-			cout << answer << " "
-				 << "4" << endl;
+			cout << answer << " "<< "4" << endl;
 			break;
 		}
 		if (judgei == 0)
 		{
 			transfer_.Transfer(0, 2);
-			cout << "0"
-				 << " "
-				 << "2" << endl;
+			cout << "0"<< " "<< "2" << endl;
 			break;
 		}
 		if (judgei == 3)
 		{
 			transfer_.Transfer(0, 3);
-			cout << "0"
-				 << " "
-				 << "3" << endl;
+			cout << "0"<< " "<< "3" << endl;
 			break;
 		}
 
