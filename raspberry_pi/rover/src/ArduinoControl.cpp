@@ -51,7 +51,7 @@ int ArduinoControl::Transfer(int angle, unsigned char order)
 	s<< lt->tm_sec;
 	//result = "2015-5-19-11-30-21"
 	std::string result = s.str();
-	log_file_ << result << "/angle::"<< angle << ",order::" << order << "" << endl;
+	log_file_ << result << "/angle::"<< angle << ",order::" << int(order) << "" << endl;
 }
 int ArduinoControl::Csearch1()
 {
