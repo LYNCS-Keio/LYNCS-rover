@@ -3,6 +3,11 @@ import rover_module as gps
 from rover_module import height
 from time import sleep
 
+#height.judgeHight1()	
+#print("phase1")	
+#height.judgeHight2()	
+#print("phase2")	
+
 cs = lyncs_rover.arduino_control()
 if cs.Init() == -1:
     print('error')
