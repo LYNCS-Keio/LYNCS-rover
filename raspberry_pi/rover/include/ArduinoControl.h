@@ -18,5 +18,5 @@ class ArduinoControl
 	int Transfer(int angle, unsigned char order);
 	int Csearch1();
 	int Csearch2();
-	void LogOutput(string str);
+	void LogOutput(std::string str);
 };
