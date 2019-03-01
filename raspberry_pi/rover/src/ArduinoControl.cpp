@@ -31,12 +31,19 @@ int ArduinoControl::Init()
 		return 0;
 	}
 }
+
+void ArduinoControl::LogOutput(string str)
+{
+	log_file_ << str << endl;
+}
+
 int ArduinoControl::Transfer(int angle, unsigned char order)
 {
 	transfer_.Transfer(angle, order);
 	time_t t = time(nullptr);
 	const tm *lt = localtime(&t);
 	std::stringstream s;
+	std::stringstream log_result;
 	s<< lt->tm_hour;
 	s<< "-";
 	s<< lt->tm_min;
@@ -44,7 +51,8 @@ int ArduinoControl::Transfer(int angle, unsigned char order)
 	s<< lt->tm_sec;
 	//result = "2015-5-19-11-30-21"
 	std::string result = s.str();
-	log_file_ << result << "/angle::"<< angle << ",order::" << int(order) << "" << endl;
+	log_result << result << "/angle::"<< angle << ",order::" << int(order) << "";
+	LogOutput(log_result.str());
 	cout << "angle" << angle << ",order::" << int(order) << "" << endl;
 }
 int ArduinoControl::Csearch1()

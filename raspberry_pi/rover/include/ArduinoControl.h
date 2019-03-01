@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <string>
 #include "../include/Csearch.h"
 #include "../include/TransferValuesToArduino.h"
 
@@ -17,4 +18,5 @@ class ArduinoControl
 	int Transfer(int angle, unsigned char order);
 	int Csearch1();
 	void Csearch2();
+	void LogOutput(string str);
 };
