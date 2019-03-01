@@ -47,6 +47,7 @@ int ArduinoControl::Csearch1()
 		case 2:
 		case 3:
 			transfer_.Transfer(0, 1);
+			return 0;
 			break;
 		default:
 			break;
@@ -68,13 +69,16 @@ void ArduinoControl::Csearch2()
 		{
 		case 0:
 			Transfer(0, 2);
+			return 0;
 			break;
 		case 2:
 			answer = ConvertCoordinateToAngle(xy) * 1000;
 			Transfer((int)answer, 4);
+			return 0;
 			break;
 		case 3:
 			Transfer(0, 3);
+			return 0;
 			break;
 		default:
 			break;
