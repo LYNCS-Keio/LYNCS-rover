@@ -52,6 +52,7 @@ int ArduinoControl::Csearch1()
 				break;
 		}
 	}
+	return 0;
 }
 
 void ArduinoControl::Csearch2()
@@ -79,4 +80,5 @@ void ArduinoControl::Csearch2()
 			break;
 		}
 	}
+	return 0;
 }
