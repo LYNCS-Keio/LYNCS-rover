@@ -39,19 +39,17 @@ int ArduinoControl::Csearch1()
 	for (int i = 0; i < 4; i++)
 	{
 		judgei = csearch_.Search(118, 117, 122, 119, xy);
-		if (judgei == 2 or judgei == 3)
+		switch (judgei)
 		{
-			transfer_.Transfer(0, 1);
-			cout << "0"
-				 << " "
-				 << "1" << endl;
-			break;
-		}
-		if (judgei == 0)
-		{
-			return 1;
-			break;
-			return 1;
+			case 0:
+				return 1;
+				break;
+			case 2:
+			case 3:
+				transfer_.Transfer(0, 1);
+				break;
+			default:
+				break;
 		}
 	}
 }
@@ -64,27 +62,18 @@ void ArduinoControl::Csearch2()
 	double xy[2];
 	for (int i = 0; i < 4; i++)
 	{
-
 		judgei = csearch_.Search(10, 0, 180, 140, xy);
 		switch (judgei)
 		{
 		case 0:
-			transfer_.Transfer(0, 2);
-			cout << "0"
-				 << " "
-				 << "2" << endl;
+			Transfer(0, 2);
 			break;
 		case 2:
 			answer = ConvertCoordinateToAngle(xy) * 1000;
-			transfer_.Transfer((int)answer, 4);
-			cout << answer << " "
-				 << "4" << endl;
+			Transfer((int)answer, 4);
 			break;
 		case 3:
-			transfer_.Transfer(0, 3);
-			cout << "0"
-				 << " "
-				 << "3" << endl;
+			Transfer(0, 3);
 			break;
 		default:
 			break;
