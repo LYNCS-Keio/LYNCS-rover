@@ -64,7 +64,7 @@ int ArduinoControl::Csearch1()
 		if (judgei == 2 or judgei == 3)
 		{
 			transfer_.Transfer(0, 1);
-			cout << "0"<<" "<< "1" << endl;" "<< "3" << endl;
+			cout << "0"<<" "<< "1" << endl;
 110
                         break;
 			break;
