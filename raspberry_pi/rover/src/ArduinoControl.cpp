@@ -38,12 +38,6 @@ int ArduinoControl::Transfer(int angle, unsigned char order)
 	const tm *lt = localtime(&t);
 	std::stringstream s;
 	s << "20";
-	s << lt->tm_year - 100; //100を引くことで20xxのxxの部分になる
-	s << "-";
-	s << lt->tm_mon + 1; //月を0からカウントしているため
-	s << "-";
-	s << lt->tm_mday; //そのまま
-	s<< "-";
 	s<< lt->tm_hour;
 	s<< "-";
 	s<< lt->tm_min;
