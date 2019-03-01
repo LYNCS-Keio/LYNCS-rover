@@ -1,9 +1,13 @@
 #pragma once
+#include <iostream>
+#include <fstream>
 #include "../include/Csearch.h"
 #include "../include/TransferValuesToArduino.h"
+
 class ArduinoControl
 {
   private:
+	std::ofstream log_file_;
 	Csearch csearch_;
 	TransferValuesToArduino transfer_;
   public:
