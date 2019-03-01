@@ -37,7 +37,6 @@ int ArduinoControl::Transfer(int angle, unsigned char order)
 	time_t t = time(nullptr);
 	const tm *lt = localtime(&t);
 	std::stringstream s;
-	s << "20";
 	s<< lt->tm_hour;
 	s<< "-";
 	s<< lt->tm_min;
