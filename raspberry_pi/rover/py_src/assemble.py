@@ -27,5 +27,3 @@ while True:
     # else:
     if length * 1000 >= 40:
         cs.Transfer(int(theta * 1000), 5)
-        print(int(theta * 1000))
-        print('5')
