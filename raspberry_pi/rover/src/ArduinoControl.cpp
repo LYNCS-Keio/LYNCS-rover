@@ -19,7 +19,7 @@ ArduinoControl::~ArduinoControl()
 
 int ArduinoControl::Init()
 {
-	LogOutput("__arduino_control_init__")
+	LogOutput("__arduino_control_init__");
 	int ret_cs = csearch_.Init();
 	int ret_ar = transfer_.Init();
 	if (ret_cs < 0) {
@@ -56,6 +56,7 @@ void ArduinoControl::LogOutput(string str)
 	//result = "2015-5-19-11-30-21"
 	string result = s.str();
 	log_file_ << result << endl;
+	cout << result << endl;
 }
 
 int ArduinoControl::Transfer(int angle, unsigned char order)
@@ -115,7 +116,7 @@ int ArduinoControl::Csearch2()
 			answer = ConvertCoordinateToAngle(xy) * 1000;
 			Transfer((int)answer, 4);
 			return 0;
-			break;
+			break;35.555388, 139.655796
 		case 3:
 			s << "red object detected. goal.";
 			Transfer(0, 3);
