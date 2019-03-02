@@ -18,7 +18,7 @@ double realaccel;
 
 lyncs::RoverMotor rover_motor = lyncs::RoverMotor();
 lyncs::Matrix<double, 3, 3> rotation_matrix = lyncs::Matrix<double, 3, 3>();
-lyncs::PIDController vkz_pid(9, 45.25, 0.4475);
+lyncs::PIDController vkz_pid(4.8, 23.65, 0.2436);
 lyncs::PIDController kv_a_pid(1, 0, 0);
 long int intypr[3];
 double aaxT;
@@ -38,7 +38,7 @@ double stack_angle;
 
 MPU6050 mpu;
 
-double gzzz;
+double分離 gzzz;
 double gztank = 0;
 int countx = 0;
 double vkz = 0;
@@ -52,6 +52,7 @@ lyncs::LowPass<double> pty(0.05);
 
 char buf[100];
 int spi1;
+int judge_bool = 0;
 unsigned char cspi1 = 7;
 volatile byte pos;
 volatile boolean process_it;
@@ -242,11 +243,7 @@ void loop()
 			rover_motor.RoverPower(1, vkz);
 			break;
 		case 2: //回転
-			// do something
-			target_angle = 1.047 + stack_angle;
-			vkz_pid.InputPID(gyz - gy[0], target_angle, 0.01);
-			vkz = (-1) * vkz_pid.GetPID();
-			rover_motor.RoverPower(0, vkz);
+			rover_motor.RoverPower(0, 0.5);
 			break;
 		case 3: //停止
 			rover_motor.RoverPower(0, 0);
@@ -258,25 +255,30 @@ void loop()
 			rover_motor.RoverPower(1, vkz);
 			break;
 		case 5: //GPS
-			target_angle = (-1) * (double)spi1 / 1000;
+			target_angle = (-1) * (double)spi1 / 1000 + ((int)((gyz - gy[0]) / 3.1415)) * 3.1415;
 			vkz_pid.InputPID(gyz - gy[0], target_angle, 0.01);
 			vkz = (-1) * vkz_pid.GetPID();
 			rover_motor.RoverPower(1, vkz);
 			break;
-		case 6: //パラ分離
-			digitalWrite(11, HIGH);
-			delay(2000);
-			digitalWrite(11, LOW);
+		case 6://パラ分離
+			if (judge_bool == 0)
+			{
+				digitalWrite(11, HIGH);
+				delay(800);
+				digitalWrite(11, LOW);
+				delay(2000);
+				judge_bool = 1;
+			}
 		}
 
 		//Serial.println(vkz);
 	}
 
-	Serial.print(spi1);
-	Serial.print(" ");
-	Serial.print(cspi1);
-	Serial.print(" ");
-	Serial.println(target_angle);
+	/*Serial.print(spi1);
+   Serial.print(" ");
+   Serial.print(cspi1);
+   Serial.print(" ");
+   Serial.println(target_angle);*/
 
 	//Serial.println(stack_angle);
 	countx++;
