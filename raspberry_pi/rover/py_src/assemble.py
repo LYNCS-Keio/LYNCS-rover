@@ -8,9 +8,9 @@ cs = lyncs_rover.arduino_control()
 if cs.Init() == -1:
     print('error')
 
-#height.judgeHight1()
+height.judgeHight1()
 cs.LogOutput("phase1")
-#height.judgeHight2()
+height.judgeHight2()
 cs.LogOutput("phase2")
 
 length, theta = [0,0]
