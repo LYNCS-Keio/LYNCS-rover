@@ -115,7 +115,7 @@ int ArduinoControl::Csearch2()
 			answer = ConvertCoordinateToAngle(xy) * 1000;
 			Transfer((int)answer, 4);
 			return 0;
-			break;35.555388, 139.655796
+			break;
 		case 3:
 			s << "red object detected. goal.";
 			Transfer(0, 3);
