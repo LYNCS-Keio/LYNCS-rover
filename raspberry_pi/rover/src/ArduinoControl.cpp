@@ -56,7 +56,7 @@ void ArduinoControl::LogOutput(string str)
 	//result = "2015-5-19-11-30-21"
 	string result = s.str();
 	log_file_ << result << endl;
-	cout << result << endl;
+	cout << str << endl;
 }
 
 int ArduinoControl::Transfer(int angle, unsigned char order)
@@ -65,7 +65,6 @@ int ArduinoControl::Transfer(int angle, unsigned char order)
 	stringstream log_result;
 	log_result  << "angle::"<< angle << ",order::" << int(order) << "";
 	LogOutput(log_result.str());
-	cout << log_result.str() << endl;
 }
 int ArduinoControl::Csearch1()
 {
