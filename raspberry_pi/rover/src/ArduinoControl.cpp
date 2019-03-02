@@ -26,12 +26,18 @@ int ArduinoControl::Init()
 		stringstream s;
 		s << "camera error code::" << ret_cs;
 		LogOutput(s.str());
+	}else{
+		LogOutput("successfully opened the camera");
 	}
-	if (ret_cs < 0) {
+
+	if (ret_ar < 0) {
 		stringstream s;
 		s << "spi error code::" << ret_ar;
 		LogOutput(s.str());
+	}else{
+		LogOutput("successfully opened the Arduino micro");
 	}
+	
 	if (ret_cs * ret_ar < 0)
 	{
 		return -1;
