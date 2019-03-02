@@ -38,7 +38,7 @@ double stack_angle;
 
 MPU6050 mpu;
 
-double分離 gzzz;
+double gzzz;
 double gztank = 0;
 int countx = 0;
 double vkz = 0;
