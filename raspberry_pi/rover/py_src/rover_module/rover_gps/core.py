@@ -24,8 +24,8 @@ def lat_long_reader(sentence):
             lat = float(msg.latitude)
         if msg.longitude != None:
             longi = float(msg.longitude)
-    except pynmea2.nmea.ChecksumError:
-        lat,longi = [None,None]
+    except:
+        lat, longi = [None, None]
     return [lat, longi]
 
 
@@ -66,9 +66,13 @@ def lat_long_measurement():
         se = s.readline()
         print(se)
         sentence = se.decode(encoding='utf-8', errors='replace')
-        if 'GGA' in sentence or 'RMC' in sentence or 'GLL' in sentence:
+        if sentence[3:6] == 'GGA' or sentence[3:6] == 'RMC' or sentence[
+                3:6] == 'GLL':
             lat_and_long = lat_long_reader(sentence)
-            break
+            if lat_and_long[0] == 0 or lat_and_long[1] == 0:
+                continue
+            else:
+                break
     return [lat_and_long[0], lat_and_long[1]]
 
 
@@ -152,7 +156,7 @@ def r_theta_to_goal(goal_lat, goal_long):
     距離の単位はkm, 方位角の単位はradである。
     """
     current_coordinate = lat_long_measurement()
-    if current_coordinate[0] == None or current_coordinate[1] == None:
+    if current_coordinate[0] is None or current_coordinate[1] is None:
         return None
     else:
         return convert_lat_long_to_r_theta(
