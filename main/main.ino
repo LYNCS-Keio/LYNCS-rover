@@ -262,6 +262,9 @@ void loop()
 			break;
 		case 5: //GPS
       			target_angle=(-1)*(double)spi1/1000;
+						target_angle=target_angle+((int)((gyz-gy[0])/3.1415))*3.1415;
+            //Serial.print(target_angle);
+            //Serial.print(" ");
       			vkz_pid.InputPID(gyz-gy[0],target_angle,0.01);
       			vkz = (-1)*vkz_pid.GetPID();
       			rover_motor.RoverPower(1, vkz);
@@ -277,11 +280,11 @@ void loop()
 	//Serial.println(vkz);
   }
 
-	  Serial.print(spi1);
+	 /*Serial.print(spi1);
    Serial.print(" ");
    Serial.print(cspi1);
    Serial.print(" ");
-   Serial.println(target_angle);
+   Serial.println(target_angle);*/
 
    //Serial.println(stack_angle);
 	countx++;
