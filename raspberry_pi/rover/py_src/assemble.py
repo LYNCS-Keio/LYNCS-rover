@@ -17,11 +17,14 @@ while True:
     if count > 20:
         break
 
+
+count = 0
 while True:
-    coord = gps.lat_long_measurement()
-    if coord is not None:
-        cs.LogOutput('lat::' + str(coord[0]) + ', long::' + str(coord[1]))
+    count += 1
+    print(gps.lat_long_measurement())
+    if count > 20:
         break
+
 
 sleep(30)  # fall
 
@@ -36,10 +39,11 @@ while True:
     if count > 20:
         break
 
+count = 0
 while True:
-    coord = gps.lat_long_measurement()
-    if coord is not None:
-        cs.LogOutput('lat::' + str(coord[0]) + ', long::' + str(coord[1]))
+    count += 1
+    print(gps.lat_long_measurement())
+    if count > 20:
         break
 
 cs.Transfer(0,2)
