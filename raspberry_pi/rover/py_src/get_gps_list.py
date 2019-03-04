@@ -3,8 +3,10 @@
 import csv
 import rover_module as gps
 import time
+import sys
+args = sys.argv
 
-data_num = 5
+data_num = int(args[1])
 data_path = 'gps_data.csv'
 with open(data_path, mode='w', newline='') as f:
     writer = csv.writer(f)
