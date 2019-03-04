@@ -15,7 +15,7 @@ python3 get_gps_list.py 100
 を実行するとgpsのデータが100個入ったcsvファイルが作成されます。
 """
 
-data_num = 10  #int(args[1])
+data_num = int(args[1])
 data_path = 'gps_data.csv'
 with open(data_path, mode='w', newline='') as f:
     writer = csv.writer(f)
@@ -30,7 +30,7 @@ with open(data_path, mode='w', newline='') as f:
                 vel[1]
             ])
 # knot から mへの換算
-# 角度の
+# 角度の単位は度
 
 with open(data_path) as f:
     print(f.read())
