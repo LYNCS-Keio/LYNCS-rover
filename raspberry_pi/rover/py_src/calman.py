@@ -1,8 +1,12 @@
 import numpy as np
 import math
+import rover_module as gps
+import csv
+import time
+import sys
 
 stack_time = 0
-mu = np.mat([45, 56, 0, 0, 0, 0])
+mu = np.mat([0, 0, 0, 0, 0, 0])
 Sigma = np.mat([
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
@@ -10,6 +14,11 @@ Sigma = np.mat([
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0]])
+
+def setfirst(lat_in,low_in):
+    mu[0,0] = np.mat([lat_in, low_in, 0, 0, 0, 0])
+
+
 
 
 def lineCalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
@@ -23,8 +32,7 @@ def lineCalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
     r = 6378.137
     v_hougaku_rad = math.radians(v_hougaku)
     vx_mes = v_ookisa * math.sin(v_hougaku_rad) / 1000 / 6378.137
-    vy_mes = v_ookisa * math.cos(v_hougaku_rad) / 1000 / (
-        6378.137 * math.cos(x_mes))
+    vy_mes = v_ookisa * math.cos(v_hougaku_rad) / 1000 / (6378.137 * math.cos(x_mes))
     delta_T = get_time - stack_time
     stack_time = get_time
     Y = np.mat(x_mes, y_mes, vx_mes, vy_mes)
@@ -59,4 +67,24 @@ def lineCalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
     Sigma = Sigma_ - K * H * Sigma_
 
     if __name__ == '__main__':
-        lineCalman(2, 3, 4, 5, 6)
+        global stack_time
+        stack_time = time.time()
+        args = sys.argv
+        data_num = int(args[1])
+        data_path = 'gps_data_calman.csv'
+        while True:
+            list_dis_thet = gps.lat_long_measurement()
+            if list_dis_thet is not None:
+                setfirst(list_dis_thet[0],list_dis_thet[1])
+                break
+        with open(data_path, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([ '緯度', '経度', '総数', data_num])
+            for i in range(data_num):
+                lat_long = gps.lat_long_measurement()
+                vel = gps.velocity_measurement()
+                time = time.time()
+                if lat_long[0] is not None and lat_long[1] is not None and vel[0] is not None and vel[1] is not None:
+                    lat_low=lineCalman(time, lat, lon,v_okisa* 1852 / 3600, v_kakudo)
+                    writer.writerow(lat_low[0],lat_low[1])
+        time.sleep(0.5)
