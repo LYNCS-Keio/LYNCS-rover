@@ -16,7 +16,8 @@ Sigma = np.mat([
     [0, 0, 0, 0, 0, 0]])
 
 def setfirst(lat_in,low_in):
-    mu[0,0] = np.mat([lat_in, low_in, 0, 0, 0, 0])
+    global mu
+    mu = np.mat([lat_in, low_in, 0, 0, 0, 0])
 
 
 
@@ -65,18 +66,20 @@ def lineCalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
     K = Sigma_ * H.T * S.I
     mu = mu_ + K * yi
     Sigma = Sigma_ - K * H * Sigma_
+    return mu[0][0],mu[0][1]
 
-    if __name__ == '__main__':
-        global stack_time
-        stack_time = time.time()
-        args = sys.argv
-        data_num = int(args[1])
-        data_path = 'gps_data_calman.csv'
-        while True:
-            list_dis_thet = gps.lat_long_measurement()
-            if list_dis_thet is not None:
-                setfirst(list_dis_thet[0],list_dis_thet[1])
-                break
+
+if __name__ == '__main__':
+    global stack_time
+    stack_time = time.time()
+    args = sys.argv
+    data_num = int(args[1])
+    data_path = 'gps_data_calman.csv'
+    while True:
+        list_dis_thet = gps.lat_long_measurement()
+        if list_dis_thet is not None:
+            setfirst(list_dis_thet[0],list_dis_thet[1])
+            break
         with open(data_path, mode='w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([ '緯度', '経度', '総数', data_num])
