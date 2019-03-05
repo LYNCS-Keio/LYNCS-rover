@@ -17,8 +17,8 @@ def lineCalman(get_time,x_mes,y_mes,v_ookisa,v_hougaku):
     global mu
     x_var = 0.000000000974
     y_var = 0.000000000474
-    vx_var = 1
-    vy_var = 1
+    vx_var = 0.000141440438/(10**14)
+    vy_var = 0.008214481518/(10**14)
     r = 6378.137
     v_hougaku_rad = radians(v_hougaku)
     vx_mes = v_ookisa*sin(v_hougaku_rad)/1000/6378.137
