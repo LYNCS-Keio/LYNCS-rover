@@ -23,9 +23,9 @@ def setfirst(lat_in,low_in):
 
 
 def lineCalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
-    global stack_time
     global Sigma
     global mu
+    global stack_time
     x_var = 0.000000000974
     y_var = 0.000000000474
     vx_var = 0.000141440438/(10**14)
@@ -36,7 +36,7 @@ def lineCalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
     vy_mes = v_ookisa * math.cos(v_hougaku_rad) / 1000 / (6378.137 * math.cos(x_mes))
     delta_T = get_time - stack_time
     stack_time = get_time
-    Y = np.mat(x_mes, y_mes, vx_mes, vy_mes)
+    Y = np.mat([x_mes, y_mes, vx_mes, vy_mes])
     F = np.mat([
         [1, 0, delta_T, 0, delta_T**2 / 2, 0],
         [0, 1, 0, delta_T, 0, delta_T**2 / 2],
@@ -58,19 +58,19 @@ def lineCalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
         [0, 0, 0, vy_var]
         ])
 
-    mu_ = F * mu
+    mu_ = F * mu.T
     Sigma_ = F * Sigma * F.T
 
-    yi = Y - H * mu_
+    yi = Y.T - H * mu_
     S = H * Sigma_ * H.T + R
     K = Sigma_ * H.T * S.I
-    mu = mu_ + K * yi
+    mu = (mu_ + K * yi).T
     Sigma = Sigma_ - K * H * Sigma_
-    return mu[0][0],mu[0][1]
+    return mu[0:1]
 
 
 if __name__ == '__main__':
-    global stack_time
+    stack_time
     stack_time = time.time()
     args = sys.argv
     data_num = int(args[1])
@@ -80,14 +80,15 @@ if __name__ == '__main__':
         if list_dis_thet is not None:
             setfirst(list_dis_thet[0],list_dis_thet[1])
             break
-        with open(data_path, mode='w', newline='') as f:
+
+    with open(data_path, mode='w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([ '緯度', '経度', '総数', data_num])
             for i in range(data_num):
                 lat_long = gps.lat_long_measurement()
                 vel = gps.velocity_measurement()
-                time = time.time()
+                mes_time = time.time()
                 if lat_long[0] is not None and lat_long[1] is not None and vel[0] is not None and vel[1] is not None:
-                    lat_low=lineCalman(time, lat, lon,v_okisa* 1852 / 3600, v_kakudo)
-                    writer.writerow(lat_low[0],lat_low[1])
-        time.sleep(0.5)
+                    lat_low=lineCalman(mes_time, lat_long[0],lat_long[1],vel[0]* 1852 / 3600, vel[1])
+                    writer.writerow(lat_low)
+                    time.sleep(1)
