@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #%%
 import csv
-#import rover_module as gps
+import rover_module as gps
 import  random
 import time
 import sys
