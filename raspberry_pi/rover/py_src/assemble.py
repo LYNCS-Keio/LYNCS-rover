@@ -5,6 +5,7 @@ from rover_module import height
 from time import sleep
 
 goal_lat, goal_log = [35.555744, 139.654071]
+minimum_dist = 5
 
 cs = lyncs_rover.arduino_control()
 if cs.Init() == -1:
@@ -56,10 +57,10 @@ while True:
         cs.LogOutput('dist::' + str(length) + ', angle::' + str(theta))
     for i in range(25):
         judge = cs.Csearch1()
-        if length * 1000 < 5 and judge == 1:
+        if length * 1000 < minimum_dist and judge == 1:
             cs.Csearch2()
     # f r_theata[0]*1000 < 20:
     #    cs.Csearch2()
     # else:
-    if length * 1000 >= 5:
+    if length * 1000 >= minimum_dist:
         cs.Transfer(int(theta * 1000), 5)
