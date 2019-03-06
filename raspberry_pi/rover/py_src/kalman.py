@@ -22,7 +22,7 @@ def setfirst(lat_in,low_in):
 
 
 
-def lineCalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
+def lineKalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
     global Sigma
     global mu
     global stack_time
@@ -48,7 +48,7 @@ def lineCalman(get_time, x_mes, y_mes, v_ookisa, v_hougaku):
     H = np.mat([
         [1, 0, 0, 0, 0, 0],
         [0, 1, 0, 0, 0, 0],
-        [0, 0, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0,lat_low 0],
         [0, 0, 0, 1, 0, 0]
         ])
     R = np.mat([
