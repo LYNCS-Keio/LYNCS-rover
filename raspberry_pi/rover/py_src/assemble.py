@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from bin import lyncs_rover
 import rover_module as gps
 from rover_module import height
@@ -16,13 +17,12 @@ cs = lyncs_rover.arduino_control()
 if cs.Init() == -1:
     print('error')
 cs.Transfer(0,3)
-
 count = 0
 while True:
     count += 1
     judge_data0 = height.readData()
     if count % 10 == 1:
-        cs.LogOutput('phase1, height::' + str(judge_data0))
+        cs.LogOutput('phase1, height::' + str(judge_data0) + 'm')
     if judge_data0 > height.max_high:
         break
 
@@ -30,7 +30,7 @@ while True:
     count += 1
     judge_data = height.readData()
     if count % 10 == 1:
-        cs.LogOutput('phase2, height::' + str(judge_data))
+        cs.LogOutput('phase2, height::' + str(judge_data) + 'm')
 
     if judge_data < height.low_high and height.math.fabs(height.given_data -
                                                          judge_data) < 0.8:
@@ -60,7 +60,6 @@ while True:
     coord = gps.lat_long_measurement()
     if coord is not None:
         cs.LogOutput('lat::' + str(coord[0]) + ', long::' + str(coord[1]))
-
     for i in range(10):
         ret = cs.Csearch3()
         if ret == 0:
